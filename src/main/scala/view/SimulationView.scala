@@ -3,9 +3,9 @@ package view
 import model.EcosystemManager
 import scala.swing.*
 
-class EcosystemView(ecosystemManager: EcosystemManager) extends MainFrame:
+class SimulationView(ecosystemManager: EcosystemManager) extends MainFrame:
 
-  title = "Ecosystem View"
+  title = "Ecosystem Simulation"
   preferredSize = new Dimension(600, 600)
 
   contents = new Panel:

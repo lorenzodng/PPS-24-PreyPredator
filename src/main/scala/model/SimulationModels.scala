@@ -57,3 +57,7 @@ case class World(width: Int, height: Int, wolfs: Seq[Wolf], sheep: Seq[Sheep], g
 
   def addWolf(newWolf: Wolf): World =
     copy(wolfs = wolfs :+ newWolf)
+    
+  def addGrass(newGrass: Seq[Grass]): World =
+    copy(grass = grass ++ newGrass)
+    

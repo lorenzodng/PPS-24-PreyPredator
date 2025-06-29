@@ -8,7 +8,9 @@ trait SimulationManager:
 class EcosystemManager(var world: World, val speed: Double = 10.0) extends SimulationManager:
 
   private var directions: Map[String, (Double, Double)] = Map.empty
+  private var tickCounter = 0
   private val LOST_ENERGY = 5
+  private val GRASS_AMOUNT = 20
 
   def getWorld: World = world
 
@@ -26,6 +28,12 @@ class EcosystemManager(var world: World, val speed: Double = 10.0) extends Simul
           case Some(sheep) =>
             world = updateWorldAfterSheepMovement(updateSheepPosition(sheep, dx, dy))
           case None =>
+
+    tickCounter += 1
+    if tickCounter >= GRASS_AMOUNT then
+      val newGrass = GrassGenerator.generateRandomGrass(5, world.width, world.height)
+      world = world.addGrass(newGrass)
+      tickCounter = 0
 
   private def updateWolfPosition(wolfEntity: Wolf, dx: Double, dy: Double): Wolf =
     val newX = (wolfEntity.position.x + dx * speed).max(0).min(world.width)
