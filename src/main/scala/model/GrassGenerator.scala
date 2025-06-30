@@ -1,5 +1,7 @@
 package model
 
+import model.entities.Grass
+
 object GrassGenerator:
 
   def generateRandomGrass(grassCount: Int, worldWidth: Double, worldHeight: Double): Seq[Grass] =

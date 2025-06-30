@@ -1,12 +1,14 @@
-package controller
+package model.entities
 
-import model.{Sheep, SimulationManager, World}
+import model.*
+import model.managers.{EcosystemManager, MovableEntity}
 
-object WolfMovement:
+case class Wolf(id: String, position: Position, energy: Double = 50, mass: Int = 350) extends Entity with MovableEntity[Wolf]:
   
-  def moveWolf(id: String, ecosystemManager: SimulationManager): Unit =
-    val world = ecosystemManager.getWorld 
-    val wolfEntity = world.wolfById(id) 
+  def move(ecosystemManager: EcosystemManager): Unit =
+    val world = ecosystemManager.world 
+    
+    val wolfEntity = world.wolfById(id)
     val sheepOpt = nearestSheep(id, world) 
     (wolfEntity, sheepOpt) match
       case (Some(wolf), Some(prey)) => 
@@ -19,7 +21,13 @@ object WolfMovement:
           ecosystemManager.moveEntityDirection(id, normalizedDx, normalizedDy) 
       case _ =>
   
+  def eat: Wolf =
+    val gain = 10
+    copy(energy = energy + gain)
+    
   private def nearestSheep(wolf: String, world: World): Option[Sheep] =
     world.sheep
       .sortBy(sheep => world.wolfById(wolf).map(w => w.distanceTo(sheep)).getOrElse(Double.MaxValue))
-      .headOption      
+      .headOption
+
+  override def withPosition(newPos: Position): Wolf = this.copy(position = newPos)

@@ -1,4 +1,6 @@
-package model
+package model.managers
+
+import model.entities.{Entity, Grass, Sheep, Wolf}
 
 object EatingManager:
 
