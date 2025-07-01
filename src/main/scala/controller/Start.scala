@@ -4,10 +4,13 @@ import model.World
 import model.managers.EcosystemManager
 import view.SimulationView
 
+import java.awt.Toolkit
+
 @main def runSimulation(): Unit =
 
-  val width = 1000
-  val height = 1000
+  val screenSize = Toolkit.getDefaultToolkit.getScreenSize
+  val width = screenSize.width
+  val height = screenSize.height
 
   val world = World(width, height, Seq.empty, Seq.empty, Seq.empty)
   val ecosystemManager = new EcosystemManager(world)

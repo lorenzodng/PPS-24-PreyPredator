@@ -82,8 +82,7 @@ class EcosystemManager(var world: World, val speed: Double = 1.5):
       val (sep1, sep2) = separateEntities(sheepEntity, s)
       val separatedUpdated = wAcc.updateSheep(sep1).updateSheep(sep2)
       separatedUpdated.copy(sheep = separatedUpdated.sheep :+ newSheep)
-
-    println(s"Number of sheep after eating: ${afterReproduction.sheep.size}")
+    
     val updatedSheep =
       if LifeManager.canDieEntity(sheepEatsGrass) then
         afterReproduction.sheep.filterNot(_.id == sheepEatsGrass.id)

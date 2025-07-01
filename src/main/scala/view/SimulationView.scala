@@ -11,13 +11,19 @@ class SimulationView(ecosystemController: EcosystemController) extends MainFrame
   title = "Ecosystem Simulation"
   preferredSize = new Dimension(800, 800)
 
-  private val wolvesSpinner = new JSpinner(new SpinnerNumberModel(10, 0, 500, 1))
-  private val sheepSpinner = new JSpinner(new SpinnerNumberModel(100, 0, 500, 1))
-  private val grassSpinner = new JSpinner(new SpinnerNumberModel(200, 0, 500, 1))
+  private def createCompactSpinner(initial: Int, min: Int, max: Int, step: Int): JSpinner =
+    val spinner = new JSpinner(new SpinnerNumberModel(initial, min, max, step))
+    val editor = spinner.getEditor.asInstanceOf[javax.swing.JSpinner.DefaultEditor]
+    editor.getTextField.setColumns(5)
+    val fixedSize = new Dimension(75, 20)
+    spinner.setMinimumSize(fixedSize)
+    spinner.setPreferredSize(fixedSize)
+    spinner.setMaximumSize(fixedSize)
+    spinner
 
-  wolvesSpinner.setPreferredSize(new Dimension(30, wolvesSpinner.getPreferredSize.height))
-  sheepSpinner.setPreferredSize(new Dimension(30, sheepSpinner.getPreferredSize.height))
-  grassSpinner.setPreferredSize(new Dimension(30, grassSpinner.getPreferredSize.height))
+  private val wolvesSpinner = createCompactSpinner(10, 0, 500, 1)
+  private val sheepSpinner = createCompactSpinner(100, 0, 500, 1)
+  private val grassSpinner = createCompactSpinner(200, 0, 500, 1)
 
   private val startButton = new Button("Start") { enabled = true }
   private val stopButton = new Button("Stop") { enabled = false }
@@ -32,7 +38,7 @@ class SimulationView(ecosystemController: EcosystemController) extends MainFrame
 
   private val controlsPanel = new BoxPanel(Orientation.Horizontal):
     background = new Color(230, 230, 230)
-    contents += new Label("Wolves: ")
+    contents += new Label(" Wolves: ")
     contents += Component.wrap(wolvesSpinner)
     contents += Swing.HStrut(10)
     contents += new Label("Sheep: ")

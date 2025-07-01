@@ -3,7 +3,7 @@ package model.entities
 import model.*
 import model.managers.{EcosystemManager, MovableEntity}
 
-case class Sheep(id: String, position: Position, energy: Double = 50, mass: Int = 350) extends Entity with MovableEntity[Sheep]:
+case class Sheep(id: String, position: Position, energy: Double = 50, mass: Int = 300) extends Entity with MovableEntity[Sheep]:
 
   def move(ecosystemManager: EcosystemManager): Unit =
     val world = ecosystemManager.world
