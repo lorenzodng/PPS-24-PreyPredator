@@ -1,42 +1,57 @@
 package controller
 
 import model.managers.EcosystemManager
-import java.awt.Window
-import java.util.{Timer, TimerTask}
-import scala.swing.Swing.onEDT
+import zio.*
 
 class EcosystemController(val ecosystemManager: EcosystemManager, var stopFlag: Flag.type):
 
-  private var timer: Option[Timer] = None
+  private var fiber: Option[Fiber.Runtime[Throwable, Unit]] = None
+  private var updateViewCallback: () => Unit = () => ()
 
-  def startSimulation(nWolves: Int, nSheep: Int, nGrass: Int): Unit =
-    stopFlag.reset()
-    val newTimer = new Timer()
-    val task = new TimerTask:
-      override def run(): Unit =
+  def setUpdateViewCallback(cb: () => Unit): Unit =
+    updateViewCallback = cb
 
-        if ecosystemManager.world.entities.isEmpty then
-          ecosystemManager.world = ecosystemManager.world.generateGrass(nGrass).generateSheep(nSheep).generateWolves(nWolves)
+  def startSimulation(nWolves: Int, nSheep: Int, nGrass: Int): UIO[Unit] =
+    def loop: UIO[Unit] =
+      for
+        start <- Clock.nanoTime
+        _ <- for
+          world <- ecosystemManager.getWorld
+          updatedWorld <- if world.entities.isEmpty then
+            val newWorld = world.generateSheep(nSheep).generateWolves(nWolves).generateGrass(nGrass)
+            ecosystemManager.setWorld(newWorld) *> ZIO.succeed(newWorld)
+          else ZIO.succeed(world)
+          _ <- ZIO.foreachParDiscard(updatedWorld.sheep)(_.move(ecosystemManager))
+          _ <- ZIO.foreachParDiscard(updatedWorld.wolves)(_.move(ecosystemManager))
+          _ <- ecosystemManager.tick()
+          _ <- ZIO.succeed:
+              updateViewCallback()
+        yield ()
+        end <- Clock.nanoTime
+        elapsed = zio.Duration.fromNanos(end - start)
+        sleepDuration = zio.Duration.fromMillis(30).minus(elapsed).max(zio.Duration.Zero)
+        _ <- ZIO.sleep(sleepDuration)
+        _ <- if stopFlag.isSet then ZIO.unit else loop
+      yield ()
 
-        for sheep <- ecosystemManager.world.sheep do
-          sheep.move(ecosystemManager)
-        for wolf <- ecosystemManager.world.wolves do
-          wolf.move(ecosystemManager)
+    for
+      _ <- ZIO.succeed(stopFlag.reset())
+      f <- loop.forkDaemon
+      _ = fiber = Some(f)
+    yield ()
 
-        if !stopFlag.isSet then
-          ecosystemManager.tick()
-          onEDT(Window.getWindows.foreach(_.repaint()))
+  def stopSimulation(): UIO[Unit] =
+    for
+      _ <- ZIO.succeed(stopFlag.set())
+      _ <- fiber match
+        case Some(f) => f.interrupt.unit
+        case None    => ZIO.unit
+      _ = fiber = None
+    yield ()
 
-    newTimer.scheduleAtFixedRate(task, 0, 30)
-    timer = Some(newTimer)
-
-  def stopSimulation(): Unit =
-    timer.foreach(_.cancel())
-    timer = None
-    stopFlag.set()
-
-  def resetSimulation(): Unit =
-    ecosystemManager.world = ecosystemManager.world.deleteEntities()
-
-  
-  
+  def resetSimulation(): UIO[Unit] =
+    for
+      world <- ecosystemManager.getWorld
+      cleanWorld = world.deleteEntities()
+      _ <- ecosystemManager.setWorld(cleanWorld)
+    yield ()
