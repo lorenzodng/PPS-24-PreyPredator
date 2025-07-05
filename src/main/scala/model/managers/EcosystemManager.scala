@@ -1,16 +1,16 @@
 package model.managers
 
-import model.entities.{Sheep, Wolf}
-import model.{GrassGenerator, Position, World}
-import zio._
+import model.entities.{EntityId, Grass, Sheep, Wolf}
+import model.*
+import zio.*
 
 trait MovableEntity[T]:
   def position: Position
-  def withPosition(position: Position): T
+  def newPosition(position: Position): T
 
 class EcosystemManager(refWorld: Ref[World]):
 
-  private var directions: Map[String, (Double, Double)] = Map.empty
+  private var directions: Map[EntityId.Type, (Double, Double)] = Map.empty
   private var tickCounter: Int = 0
   private val LOST_ENERGY = 0.2
   private val GRASS_FREQUENCY = 100
@@ -39,7 +39,7 @@ class EcosystemManager(refWorld: Ref[World]):
         for
           _ <- ZIO.succeed:
             tickCounter = 0
-          newGrass = GrassGenerator.generateRandomGrass(GRASS_AMOUNT, updatedWorld.width, updatedWorld.height)
+          newGrass = Grass.generateRandomGrass(GRASS_AMOUNT, updatedWorld.width, updatedWorld.height)
         yield updatedWorld.addGrass(newGrass)
       else ZIO.succeed(updatedWorld)
       _ <- refWorld.set(finalWorld)
@@ -104,12 +104,12 @@ class EcosystemManager(refWorld: Ref[World]):
       afterReproduction.copy(sheep = updatedSheep)
   
   private def createNewWolf(parent1: Wolf, parent2: Wolf): Wolf =
-    val newId = java.util.UUID.randomUUID().toString
+    val newId = EntityId.random
     val newPosition = Position((parent1.position.x + parent2.position.x) / 2, (parent1.position.y + parent2.position.y) / 2)
     Wolf(newId, newPosition)
 
   private def createNewSheep(parent1: Sheep, parent2: Sheep): Sheep =
-    val newId = java.util.UUID.randomUUID().toString
+    val newId = EntityId.random
     val newPosition = Position((parent1.position.x + parent2.position.x) / 2, (parent1.position.y + parent2.position.y) / 2)
     Sheep(newId, newPosition)
 
@@ -120,18 +120,16 @@ class EcosystemManager(refWorld: Ref[World]):
       val dx = e1.position.x - e2.position.x
       val dy = e1.position.y - e2.position.y
       val distance = math.sqrt(dx * dx + dy * dy)
-
       val separationVector = if (distance == 0) (1.0, 0.0) else (dx / distance, dy / distance)
       val newPos1 = e1.position.copy(x = (e1.position.x + separationVector._1 * separationDistance).max(0).min(world.width), y = (e1.position.y + separationVector._2 * separationDistance).max(0).min(world.height))
       val newPos2 = e2.position.copy(x = (e2.position.x - separationVector._1 * separationDistance).max(0).min(world.width), y = (e2.position.y - separationVector._2 * separationDistance).max(0).min(world.height))
-
-      (e1.withPosition(newPos1), e2.withPosition(newPos2))
+      (e1.newPosition(newPos1), e2.newPosition(newPos2)) // non posso fare direttamente e1.copy(position = newPos) perchè copy ha bisogno di conoscere il tipo di entità e1.
 
   private def randomDirection(): (Double, Double) =
     val angle = Math.random() * 2 * Math.PI
     (Math.cos(angle), Math.sin(angle))
   
-  def moveEntityDirection(id: String, dx: Double, dy: Double): UIO[Unit] =
+  def moveEntityDirection(id: EntityId.Type, dx: Double, dy: Double): UIO[Unit] =
     ZIO.succeed:
       directions = directions.updated(id, (dx, dy))
     

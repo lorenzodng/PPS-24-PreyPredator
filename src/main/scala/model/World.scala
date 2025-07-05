@@ -1,6 +1,6 @@
 package model
 
-import model.entities.{Entity, Grass, Sheep, Wolf}
+import model.entities.{Entity, EntityId, Grass, Sheep, Wolf}
 
 case class World(width: Int, height: Int, wolves: Seq[Wolf], sheep: Seq[Sheep], grass: Seq[Grass]):
 
@@ -8,29 +8,29 @@ case class World(width: Int, height: Int, wolves: Seq[Wolf], sheep: Seq[Sheep], 
 
   def generateWolves(nWolves: Int): World =
     val newWolves = (1 to nWolves).map: _ =>
-      val randomId = java.util.UUID.randomUUID().toString
+      val randomId = EntityId.random
       val randomPosition = Position(x = math.random() * width, y = math.random() * height)
       Wolf(randomId, randomPosition)
     copy(wolves = wolves ++ newWolves)
 
   def generateSheep(nSheep: Int): World =
     val newSheep = (1 to nSheep).map: _ =>
-      val randomId = java.util.UUID.randomUUID().toString
+      val randomId = EntityId.random
       val randomPosition = Position(x = math.random() * width, y = math.random() * height)
       Sheep(randomId, randomPosition)
     copy(sheep = sheep ++ newSheep)
 
   def generateGrass(nGrass: Int): World =
     val newGrass = (1 to nGrass).map: _ =>
-      val randomId = java.util.UUID.randomUUID().toString
+      val randomId = EntityId.random
       val randomPosition = Position(x = math.random() * width, y = math.random() * height)
       Grass(randomId, randomPosition)
     copy(grass = grass ++ newGrass)
 
-  def wolfById(id: String): Option[Wolf] =
+  def wolfById(id: EntityId.Type): Option[Wolf] =
     wolves.find(_.id == id)
 
-  def sheepById(id: String): Option[Sheep] =
+  def sheepById(id: EntityId.Type): Option[Sheep] =
     sheep.find(_.id == id)
 
   def updateWolf(wolfEntity: Wolf): World =

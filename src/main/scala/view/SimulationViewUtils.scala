@@ -17,6 +17,13 @@ object SimulationViewUtils:
       val (x, y) = toScreenCenter(grass.position.x, grass.position.y, radius, offsetX, offsetY)
       g.fillOval(x, y, diameter, diameter)
 
+    world.sheep.foreach: sheep =>
+      val radius = sheep.radius.toInt
+      val diameter = radius * 2
+      val (x, y) = toScreenCenter(sheep.position.x, sheep.position.y, radius, offsetX, offsetY)
+      g.setColor(Color.blue)
+      g.fillOval(x, y, diameter, diameter)
+
     world.wolves.foreach: wolf =>
       val radius = wolf.radius.toInt
       val diameter = radius * 2
@@ -24,11 +31,6 @@ object SimulationViewUtils:
       g.setColor(Color.black)
       g.fillOval(x, y, diameter, diameter)
 
-    world.sheep.foreach: sheep =>
-      val radius = sheep.radius.toInt
-      val diameter = radius * 2
-      val (x, y) = toScreenCenter(sheep.position.x, sheep.position.y, radius, offsetX, offsetY)
-      g.setColor(Color.blue)
-      g.fillOval(x, y, diameter, diameter)
+
 
 

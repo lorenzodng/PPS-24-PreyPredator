@@ -2,19 +2,17 @@ package model.entities
 
 import model.Position
 
+object EntityId:
+  
+  opaque type Type = String
+
+  def random: Type = java.util.UUID.randomUUID().toString
+
 trait Entity:
-  val id: String
+  val id: EntityId.Type
   val position: Position
   val energy: Double
   val mass: Int
+  val speed: Double
   val radius: Double = math.sqrt(mass / math.Pi)
-  val speed: Double 
-  def distanceTo(other: Entity): Double =
-    val dx = position.x - other.position.x
-    val dy = position.y - other.position.y
-    math.hypot(dx, dy)
-
-
-
-
 
