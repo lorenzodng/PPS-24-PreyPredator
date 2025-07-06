@@ -12,9 +12,9 @@ class EcosystemManager(refWorld: Ref[World]):
 
   private var directions: Map[EntityId.Type, (Double, Double)] = Map.empty
   private var tickCounter: Int = 0
-  private val LOST_ENERGY = 0.2
-  private val GRASS_FREQUENCY = 100
-  private val GRASS_AMOUNT = 50
+  private val LostEnergy = 0.2
+  private val GrassFrequency = 100
+  private val GrassAmount = 50
 
   def tick(): UIO[Unit] =
     for 
@@ -35,11 +35,11 @@ class EcosystemManager(refWorld: Ref[World]):
                 
       _ <- ZIO.succeed: 
         tickCounter += 1
-      finalWorld <- if tickCounter >= GRASS_FREQUENCY then
+      finalWorld <- if tickCounter >= GrassFrequency then
         for
           _ <- ZIO.succeed:
             tickCounter = 0
-          newGrass = Grass.generateRandomGrass(GRASS_AMOUNT, updatedWorld.width, updatedWorld.height)
+          newGrass = Grass.generateRandomGrass(GrassAmount, updatedWorld.width, updatedWorld.height)
         yield updatedWorld.addGrass(newGrass)
       else ZIO.succeed(updatedWorld)
       _ <- refWorld.set(finalWorld)
@@ -51,21 +51,21 @@ class EcosystemManager(refWorld: Ref[World]):
     val newX = (wolfEntity.position.x + dx * wolfEntity.speed + world.width) % world.width
     val newY = (wolfEntity.position.y + dy * wolfEntity.speed + world.height) % world.height
     val newPosition = wolfEntity.position.copy(x = newX, y = newY)
-    val newEnergy = wolfEntity.energy - LOST_ENERGY
+    val newEnergy = wolfEntity.energy - LostEnergy
     wolfEntity.copy(position = newPosition, energy = newEnergy)
 
   private def updateSheepPosition(world: World, sheepEntity: Sheep, dx: Double, dy: Double): Sheep =
     val newX = (sheepEntity.position.x + dx * sheepEntity.speed + world.width) % world.width
     val newY = (sheepEntity.position.y + dy * sheepEntity.speed  + world.height) % world.height
     val newPosition = sheepEntity.position.copy(x = newX, y = newY)
-    val newEnergy = sheepEntity.energy - LOST_ENERGY
+    val newEnergy = sheepEntity.energy - LostEnergy
     sheepEntity.copy(position = newPosition, energy = newEnergy)
 
   private def updateWorldAfterWolfMovement(world: World, wolfEntity: Wolf): UIO[World] =
     val sheepEaten = world.sheep.filter(sheep => EatingManager.canEatSheep(wolfEntity, sheep))
     val wolfEatsSheep = sheepEaten.foldLeft(wolfEntity)((w, sheep) => w.eat)
     val afterEating = world.updateWolf(wolfEatsSheep).removeSheep(sheepEaten)
-    val wolvesCanReproduce = world.wolves.filter(wolf => LifeManager.canBornEntity(wolfEntity, wolf))
+    val wolvesCanReproduce = afterEating.wolves.filter(wolf => LifeManager.canBornEntity(wolfEntity, wolf))
     ZIO.foldLeft(wolvesCanReproduce)(afterEating): (acc, w) =>
       val newWolf = createNewWolf(wolfEntity, w)
       for
@@ -86,7 +86,7 @@ class EcosystemManager(refWorld: Ref[World]):
     val grassEaten = world.grass.filter(grass => EatingManager.canEatGrass(sheepEntity, grass))
     val sheepEatsGrass = grassEaten.foldLeft(sheepEntity)((s, grass) => s.eat)
     val afterEating = world.updateSheep(sheepEatsGrass).removeGrass(grassEaten)
-    val sheepCanReproduce = world.sheep.filter(sheep => LifeManager.canBornEntity(sheepEntity, sheep))
+    val sheepCanReproduce = afterEating.sheep.filter(sheep => LifeManager.canBornEntity(sheepEntity, sheep))
     ZIO.foldLeft(sheepCanReproduce)(afterEating): (acc, s) =>
       val newSheep = createNewSheep(sheepEntity, s)
       for
@@ -138,3 +138,7 @@ class EcosystemManager(refWorld: Ref[World]):
 
   def setWorld(newWorld: World): UIO[Unit] =
     refWorld.set(newWorld)
+    
+  //per testing  
+  def getDirections: Map[EntityId.Type, (Double, Double)] =
+    directions

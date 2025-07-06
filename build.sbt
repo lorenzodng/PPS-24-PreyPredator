@@ -5,7 +5,8 @@ lazy val root = (project in file("."))
     name := "EcosystemSimulation",
     version := "0.1.0",
     libraryDependencies ++= Seq(
-      "dev.zio" %% "zio" % "2.0.21",
+      "dev.zio" %% "zio" % "2.1.19",
       "org.scala-lang.modules" %% "scala-swing" % "3.0.0",
+      "org.scalatest" %% "scalatest" % "3.2.19" % Test
     )
   )

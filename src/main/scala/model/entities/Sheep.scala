@@ -26,7 +26,7 @@ case class Sheep(id: EntityId.Type, position: Position, energy: Double = 50, mas
     yield ()
   
   def eat: Sheep =
-    val gain = 20
+    val gain = 10
     copy(energy = energy + gain)
 
   private def nearestGrass(sheep: EntityId.Type, world: World): Option[Grass] =

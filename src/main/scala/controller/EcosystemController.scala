@@ -41,17 +41,18 @@ class EcosystemController(val ecosystemManager: EcosystemManager, var stopFlag: 
     yield ()
 
   def stopSimulation(): UIO[Unit] =
-    for
-      _ <- ZIO.succeed(stopFlag.set())
-      _ <- fiber match
-        case Some(f) => f.interrupt.unit
-        case None    => ZIO.unit
-      _ = fiber = None
-    yield ()
+    ZIO.succeed(stopFlag.set())
 
   def resetSimulation(): UIO[Unit] =
     for
+      _ <- fiber match
+      case Some(f) => f.interrupt.unit
+      case None    => ZIO.unit
+      _ = fiber = None
       world <- ecosystemManager.getWorld
       cleanWorld = world.deleteEntities()
       _ <- ecosystemManager.setWorld(cleanWorld)
     yield ()
+
+  //per testing
+  def isRunning: Boolean = fiber.isDefined

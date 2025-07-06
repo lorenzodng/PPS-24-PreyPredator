@@ -5,7 +5,7 @@ import model.managers.{EcosystemManager, MovableEntity}
 import zio.{UIO, ZIO}
 
 case class Wolf(id: EntityId.Type, position: Position, energy: Double = 50, mass: Int = 300, speed: Double = 2) extends Entity with MovableEntity[Wolf]:
-
+  
   def move(ecosystemManager: EcosystemManager): UIO[Unit] =
     for
       world <- ecosystemManager.getWorld
