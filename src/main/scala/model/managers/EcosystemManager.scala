@@ -12,7 +12,8 @@ class EcosystemManager(refWorld: Ref[World]):
 
   private var directions: Map[EntityId.Type, (Double, Double)] = Map.empty
   private var tickCounter: Int = 0
-  private val LostEnergy = 0.2
+  private val EnergyLostForMovement = 0.2
+  private val EnergyLostForReproduction = 20
   private val GrassFrequency = 100
   private val GrassAmount = 100
 
@@ -51,14 +52,14 @@ class EcosystemManager(refWorld: Ref[World]):
     val newX = (wolfEntity.position.x + dx * wolfEntity.speed + world.width) % world.width
     val newY = (wolfEntity.position.y + dy * wolfEntity.speed + world.height) % world.height
     val newPosition = wolfEntity.position.copy(x = newX, y = newY)
-    val newEnergy = wolfEntity.energy - LostEnergy
+    val newEnergy = wolfEntity.energy - EnergyLostForMovement
     wolfEntity.copy(position = newPosition, energy = newEnergy)
 
   private def updateSheepPosition(world: World, sheepEntity: Sheep, dx: Double, dy: Double): Sheep =
     val newX = (sheepEntity.position.x + dx * sheepEntity.speed + world.width) % world.width
     val newY = (sheepEntity.position.y + dy * sheepEntity.speed  + world.height) % world.height
     val newPosition = sheepEntity.position.copy(x = newX, y = newY)
-    val newEnergy = sheepEntity.energy - LostEnergy
+    val newEnergy = sheepEntity.energy - EnergyLostForMovement
     sheepEntity.copy(position = newPosition, energy = newEnergy)
 
   private def updateWorldAfterWolfMovement(world: World, wolfEntity: Wolf): UIO[World] =
@@ -68,10 +69,12 @@ class EcosystemManager(refWorld: Ref[World]):
     val wolvesCanReproduce = afterEating.wolves.filter(wolf => LifeManager.canBornEntity(wolfEntity, wolf))
     ZIO.foldLeft(wolvesCanReproduce)(afterEating): (acc, w) =>
       val newWolf = createNewWolf(wolfEntity, w)
+      val parent1 = wolfEntity.copy(energy = wolfEntity.energy - EnergyLostForReproduction)
+      val parent2 = w.copy(energy = w.energy - EnergyLostForReproduction)
       for
         _ <- ZIO.succeed:
           directions = directions.updated(newWolf.id, randomDirection())
-        sepPair <- separateEntities(wolfEntity, w)
+        sepPair <- separateEntities(parent1, parent2)
         (sep1, sep2) = sepPair
         separatedUpdated = acc.updateWolf(sep1).updateWolf(sep2)
       yield separatedUpdated.copy(wolves = separatedUpdated.wolves :+ newWolf)
@@ -89,10 +92,12 @@ class EcosystemManager(refWorld: Ref[World]):
     val sheepCanReproduce = afterEating.sheep.filter(sheep => LifeManager.canBornEntity(sheepEntity, sheep))
     ZIO.foldLeft(sheepCanReproduce)(afterEating): (acc, s) =>
       val newSheep = createNewSheep(sheepEntity, s)
+      val parent1 = sheepEntity.copy(energy = sheepEntity.energy - EnergyLostForReproduction)
+      val parent2 = s.copy(energy = s.energy - EnergyLostForReproduction)
       for
         _ <- ZIO.succeed:
           directions = directions.updated(newSheep.id, randomDirection())
-        sepPair <- separateEntities(sheepEntity, s)
+        sepPair <- separateEntities(parent1, parent2)
         (sep1, sep2) = sepPair
         separatedUpdated = acc.updateSheep(sep1).updateSheep(sep2)
       yield separatedUpdated.copy(sheep = separatedUpdated.sheep :+ newSheep)

@@ -15,7 +15,7 @@ class EatingManagerTest extends AnyFunSuite with Matchers:
     EatingManager.canEatSheep(wolf, sheep) shouldBe true
 
   test("Wolf cannot eat sheep"):
-    val sheepPosition = Position(30, 30)
+    val sheepPosition = Position(40, 40)
     val wolf = Wolf(EntityId.random, DefaultPosition)
     val sheep = Sheep(EntityId.random, sheepPosition)
     EatingManager.canEatSheep(wolf, sheep) shouldBe false
@@ -26,7 +26,7 @@ class EatingManagerTest extends AnyFunSuite with Matchers:
     EatingManager.canEatGrass(sheep, grass) shouldBe true
 
   test("Sheep cannot eat grass"):
-    val grassPosition = Position(30, 30)
+    val grassPosition = Position(40, 40)
     val sheep = Sheep(EntityId.random, DefaultPosition)
     val grass = Grass(EntityId.random, grassPosition)
     EatingManager.canEatGrass(sheep, grass) shouldBe false

@@ -2,7 +2,6 @@ package model.managers
 
 import model.*
 import model.entities.*
-import model.managers.*
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
@@ -25,7 +24,7 @@ class LifeManagerTest extends AnyFunSuite with Matchers:
     LifeManager.canBornEntity(wolf1, wolf2) shouldBe false
 
   test("Entity cannot be born if not colliding"):
-    val wolf2Position = Position(30, 30)
+    val wolf2Position = Position(40, 40)
     val wolf1 = Wolf(EntityId.random, DefaultPosition, energy = HighEnergy)
     val wolf2 = Wolf(EntityId.random, wolf2Position, energy = HighEnergy)
     LifeManager.canBornEntity(wolf1, wolf2) shouldBe false

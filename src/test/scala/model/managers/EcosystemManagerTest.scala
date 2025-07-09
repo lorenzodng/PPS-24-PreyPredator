@@ -80,7 +80,7 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
         }.getOrThrowFiberFailure()
 
   test("Sheep is not eaten"):
-    val newPosition = Position(30, 30)
+    val newPosition = Position(40, 40)
     val wolf = Wolf(EntityId.random, DefaultPosition)
     val sheep = Sheep(EntityId.random, newPosition)
     val world = World(Width, Height, Seq(wolf), Seq(sheep), Seq.empty)
@@ -142,6 +142,28 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
             _ <- ecosystemManager.tick()
             updatedWorld <- ecosystemManager.getWorld
             _ <- ZIO.succeed(updatedWorld.wolves.size shouldBe 2)
+          yield ()
+        }.getOrThrowFiberFailure()
+
+  test("Wolves lose energy after reproduction"):
+    val wolf1 = Wolf(EntityId.random, DefaultPosition, energy = HighEnergy)
+    val wolf2 = Wolf(EntityId.random, DefaultPosition, energy = HighEnergy)
+    val world = World(Width, Height, Seq(wolf1, wolf2), Seq.empty, Seq.empty)
+    val ecosystemManager = createManager(world)
+    Unsafe.unsafe:
+      implicit u =>
+        runtime.unsafe.run {
+          for
+            _ <- ecosystemManager.moveEntityDirection(wolf1.id, DefaultDx, DefaultDy)
+            _ <- ecosystemManager.moveEntityDirection(wolf2.id, DefaultDx, DefaultDy)
+            _ <- ecosystemManager.tick()
+            updatedWorld <- ecosystemManager.getWorld
+            _ <- ZIO.succeed:
+              val expectedEnergy = 39.8
+              val updatedWolf1 = updatedWorld.wolfById(wolf1.id).get
+              val updatedWolf2 = updatedWorld.wolfById(wolf2.id).get
+              updatedWolf1.energy should be(expectedEnergy)
+              updatedWolf2.energy should be(expectedEnergy)
           yield ()
         }.getOrThrowFiberFailure()
 
@@ -240,6 +262,28 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
             _ <- ecosystemManager.tick()
             updatedWorld <- ecosystemManager.getWorld
             _ <- ZIO.succeed(updatedWorld.sheep.size shouldBe 2)
+          yield ()
+        }.getOrThrowFiberFailure()
+
+  test("Sheep lose energy after reproduction"):
+    val sheep1 = Sheep(EntityId.random, DefaultPosition, energy = HighEnergy)
+    val sheep2 = Sheep(EntityId.random, DefaultPosition, energy = HighEnergy)
+    val world = World(Width, Height, Seq.empty, Seq(sheep1, sheep2), Seq.empty)
+    val ecosystemManager = createManager(world)
+    Unsafe.unsafe:
+      implicit u =>
+        runtime.unsafe.run {
+          for
+            _ <- ecosystemManager.moveEntityDirection(sheep1.id, DefaultDx, DefaultDy)
+            _ <- ecosystemManager.moveEntityDirection(sheep2.id, DefaultDx, DefaultDy)
+            _ <- ecosystemManager.tick()
+            updatedWorld <- ecosystemManager.getWorld
+            _ <- ZIO.succeed:
+              val expectedEnergy = 39.8
+              val updatedSheep1 = updatedWorld.sheepById(sheep1.id).get
+              val updatedSheep2 = updatedWorld.sheepById(sheep2.id).get
+              updatedSheep1.energy should be(expectedEnergy)
+              updatedSheep2.energy should be(expectedEnergy)
           yield ()
         }.getOrThrowFiberFailure()
 
