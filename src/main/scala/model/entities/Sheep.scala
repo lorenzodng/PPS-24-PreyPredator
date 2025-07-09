@@ -4,7 +4,7 @@ import model.*
 import model.managers.{EcosystemManager, MovableEntity}
 import zio.{UIO, ZIO}
 
-case class Sheep(id: EntityId.Type, position: Position, energy: Double = 50, mass: Int = 300, speed: Double = 1.5) extends Entity with MovableEntity[Sheep]:
+case class Sheep(id: EntityId.Type, position: Position, energy: Double = 50, mass: Int = 1300, speed: Double = 1.5) extends Entity with MovableEntity[Sheep]:
 
   def move(ecosystemManager: EcosystemManager): UIO[Unit] =
     for

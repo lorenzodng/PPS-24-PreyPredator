@@ -2,7 +2,7 @@ package model.entities
 
 import model.Position
 
-case class Grass(id: EntityId.Type, position: Position, energy: Double = 0, mass: Int = 100, speed: Double = 0) extends Entity
+case class Grass(id: EntityId.Type, position: Position, energy: Double = 0, mass: Int = 300, speed: Double = 0) extends Entity
 
 object Grass:
   

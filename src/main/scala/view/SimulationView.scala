@@ -19,7 +19,7 @@ class SimulationView(ecosystemController: EcosystemController) extends MainFrame
     val spinner = new JSpinner(new SpinnerNumberModel(initial, min, max, step))
     val editor = spinner.getEditor.asInstanceOf[javax.swing.JSpinner.DefaultEditor]
     editor.getTextField.setColumns(5)
-    val fixedSize = new Dimension(75, 20)
+    val fixedSize = new Dimension(80, 20)
     spinner.setMinimumSize(fixedSize)
     spinner.setPreferredSize(fixedSize)
     spinner.setMaximumSize(fixedSize)
@@ -27,7 +27,7 @@ class SimulationView(ecosystemController: EcosystemController) extends MainFrame
 
   private val wolvesSpinner = createCompactSpinner(10, 0, 500, 1)
   private val sheepSpinner = createCompactSpinner(100, 0, 500, 1)
-  private val grassSpinner = createCompactSpinner(200, 0, 500, 1)
+  private val grassSpinner = createCompactSpinner(500, 0, 500, 1)
   private val startButton = new Button("Start") { enabled = true }
   private val stopButton = new Button("Stop") { enabled = false }
   private val resetButton = new Button("Reset") { enabled = false }

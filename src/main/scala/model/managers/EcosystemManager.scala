@@ -14,9 +14,9 @@ class EcosystemManager(refWorld: Ref[World]):
   private var tickCounter: Int = 0
   private val LostEnergy = 0.2
   private val GrassFrequency = 100
-  private val GrassAmount = 50
+  private val GrassAmount = 100
 
-  def tick(): UIO[Unit] =
+  def tick(): UIO[Unit] = 
     for 
       world <- refWorld.get
       updatedWorld <- directions.toList.foldLeft(ZIO.succeed(world)): (accZIO, entry) =>
