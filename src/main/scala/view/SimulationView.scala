@@ -4,7 +4,6 @@ import scala.swing.*
 import scala.swing.event.*
 import java.awt.{Color, Dimension, Graphics2D}
 import controller.{EcosystemController, Flag}
-
 import javax.swing.{JSpinner, SpinnerNumberModel}
 import zio.Unsafe.unsafe
 import zio.Runtime
@@ -26,12 +25,18 @@ class SimulationView(ecosystemController: EcosystemController) extends MainFrame
     spinner.setMaximumSize(fixedSize)
     spinner
 
-  private val wolvesSpinner = createCompactSpinner(10, 0, 500, 1)
-  private val sheepSpinner = createCompactSpinner(100, 0, 500, 1)
-  private val grassSpinner = createCompactSpinner(500, 0, 500, 1)
+  private val wolvesSpinner = createCompactSpinner(10, 0, 1000, 1)
+  private val sheepSpinner = createCompactSpinner(100, 0, 1000, 1)
+  private val grassSpinner = createCompactSpinner(500, 0, 1000, 1)
   private val startButton = new Button("Start") { enabled = true }
   private val stopButton = new Button("Stop") { enabled = false }
   private val resetButton = new Button("Reset") { enabled = false }
+  private val wolfCountLabel = new Label("Wolves: 0")
+  private val sheepCountLabel = new Label("Sheep: 0")
+  private val grassCountLabel = new Label("Grass: 0")
+  wolfCountLabel.font = wolfCountLabel.font.deriveFont(13f)
+  sheepCountLabel.font = sheepCountLabel.font.deriveFont(13f)
+  grassCountLabel.font = grassCountLabel.font.deriveFont(13f)
 
   private val worldPanel = new Panel:
     background = Color.WHITE
@@ -56,9 +61,18 @@ class SimulationView(ecosystemController: EcosystemController) extends MainFrame
     contents += stopButton
     contents += resetButton
 
+  private val statusPanel = new FlowPanel(FlowPanel.Alignment.Center)(
+    wolfCountLabel,
+    Swing.HStrut(20),
+    sheepCountLabel,
+    Swing.HStrut(20),
+    grassCountLabel
+  )
+
   contents = new BorderPanel:
     layout(controlsPanel) = BorderPanel.Position.North
     layout(worldPanel) = BorderPanel.Position.Center
+    layout(statusPanel) = BorderPanel.Position.South
 
   listenTo(startButton, stopButton, resetButton)
 
@@ -113,5 +127,10 @@ class SimulationView(ecosystemController: EcosystemController) extends MainFrame
         val w = runtime.unsafe.run(ecosystemController.ecosystemManager.getWorld).getOrThrowFiberFailure()
         scala.swing.Swing.onEDT:
           currentWorld = Some(w)
+          val wolfCount = w.wolves.size
+          val sheepCount = w.sheep.size
+          val grassCount = w.grass.size
+          wolfCountLabel.text = s"Wolves: $wolfCount"
+          sheepCountLabel.text = s"Sheep: $sheepCount"
+          grassCountLabel.text = s"Grass: $grassCount"
           worldPanel.repaint()
-
