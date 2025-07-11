@@ -132,7 +132,7 @@ class EcosystemManager(refWorld: Ref[World]):
       val newPos2 = e2.position.copy(x = (e2.position.x - separationVector._1 * separationDistance).max(0).min(world.width), y = (e2.position.y - separationVector._2 * separationDistance).max(0).min(world.height))
       (e1.newPosition(newPos1), e2.newPosition(newPos2)) // non posso fare direttamente e1.copy(position = newPos) perchè copy ha bisogno di conoscere il tipo di entità e1.
 
-  private def randomDirection(): (Double, Double) =
+  def randomDirection(): (Double, Double) =
     val angle = Math.random() * 2 * Math.PI
     (Math.cos(angle), Math.sin(angle))
   

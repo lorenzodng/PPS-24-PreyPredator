@@ -23,7 +23,12 @@ class EcosystemController(val ecosystemManager: EcosystemManager, var stopFlag: 
           world <- ecosystemManager.getWorld
           updatedWorld <- if world.entities.isEmpty then
             val newWorld = world.generateSheep(nSheep).generateWolves(nWolves).generateGrass(nGrass)
-            ecosystemManager.setWorld(newWorld) *> ZIO.succeed(newWorld)
+            for
+              _ <- ecosystemManager.setWorld(newWorld)
+              _ <- ZIO.foreachDiscard(newWorld.sheep.map(_.id) ++ newWorld.wolves.map(_.id)): id =>
+                val (dx, dy) = ecosystemManager.randomDirection()
+                ecosystemManager.moveEntityDirection(id, dx, dy)
+            yield newWorld
           else ZIO.succeed(world)
           _ <- ZIO.foreachParDiscard(updatedWorld.sheep)(_.move(ecosystemManager))
           _ <- ZIO.foreachParDiscard(updatedWorld.wolves)(_.move(ecosystemManager))
