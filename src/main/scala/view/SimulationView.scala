@@ -3,7 +3,8 @@ package view
 import scala.swing.*
 import scala.swing.event.*
 import java.awt.{Color, Dimension, Graphics2D}
-import controller.EcosystemController
+import controller.{EcosystemController, Flag}
+
 import javax.swing.{JSpinner, SpinnerNumberModel}
 import zio.Unsafe.unsafe
 import zio.Runtime
@@ -90,12 +91,21 @@ class SimulationView(ecosystemController: EcosystemController) extends MainFrame
           implicit u =>
             runtime.unsafe.run(ecosystemController.resetSimulation())
             updateView()
-        
+
+        startButton.enabled = true
         wolvesSpinner.setEnabled(true)
         sheepSpinner.setEnabled(true)
         grassSpinner.setEnabled(true)
         resetButton.enabled = false
   }
+
+  def updateButtons(): Unit =
+    startButton.enabled = false
+    stopButton.enabled = false
+    resetButton.enabled = true
+    wolvesSpinner.setEnabled(false)
+    sheepSpinner.setEnabled(false)
+    grassSpinner.setEnabled(false)
 
   def updateView(): Unit =
     unsafe:

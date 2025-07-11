@@ -7,9 +7,13 @@ class EcosystemController(val ecosystemManager: EcosystemManager, var stopFlag: 
 
   private var fiber: Option[Fiber.Runtime[Throwable, Unit]] = None
   private var updateViewCallback: () => Unit = () => ()
+  private var extinctionCallback: () => Unit = () => ()
 
   def setUpdateViewCallback(cb: () => Unit): Unit =
     updateViewCallback = cb
+
+  def setExtinctionCallback(cb: () => Unit): Unit =
+    extinctionCallback = cb
 
   def startSimulation(nWolves: Int, nSheep: Int, nGrass: Int): UIO[Unit] =
     def loop: UIO[Unit] =
@@ -23,13 +27,15 @@ class EcosystemController(val ecosystemManager: EcosystemManager, var stopFlag: 
           else ZIO.succeed(world)
           _ <- ZIO.foreachParDiscard(updatedWorld.sheep)(_.move(ecosystemManager))
           _ <- ZIO.foreachParDiscard(updatedWorld.wolves)(_.move(ecosystemManager))
-          _ <- ecosystemManager.tick()
-          _ <- ZIO.succeed:
-              updateViewCallback()
+          extinct <- ecosystemManager.tick()
+          _ <- if extinct then
+            stopSimulation() *> ZIO.succeed(extinctionCallback())
+          else
+            ZIO.succeed(updateViewCallback())
         yield ()
         end <- Clock.nanoTime
         elapsed = zio.Duration.fromNanos(end - start)
-        sleepDuration = zio.Duration.fromMillis(30).minus(elapsed).max(zio.Duration.Zero)
+        sleepDuration = zio.Duration.fromMillis(20).minus(elapsed).max(zio.Duration.Zero)
         _ <- ZIO.sleep(sleepDuration)
         _ <- if stopFlag.isSet then ZIO.unit else loop
       yield ()

@@ -21,7 +21,13 @@ import java.awt.Toolkit
       val stopFlag = Flag
       val ecosystemController = new EcosystemController(ecosystemManager, stopFlag)
       val simulationView = new SimulationView(ecosystemController)
-      ecosystemController.setUpdateViewCallback(() => simulationView.updateView())
+      ecosystemController.setUpdateViewCallback(() => 
+        simulationView.updateView()
+      )
+      ecosystemController.setExtinctionCallback(() => 
+        simulationView.updateView()
+        simulationView.updateButtons()
+      )
 
       simulationView.open()
   

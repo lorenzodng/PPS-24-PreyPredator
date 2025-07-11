@@ -60,3 +60,16 @@ class EcosystemControllerTest extends AnyFunSuite with Matchers:
             _ <- ZIO.succeed(world.entities.isEmpty shouldBe true)
           yield ()
         }.getOrThrowFiberFailure()
+
+
+  test("Stop the simulation"):
+    Unsafe.unsafe:
+      implicit u =>
+        runtime.unsafe.run {
+          for
+            _ <- controller.startSimulation(numWolves, numSheep, numGrass)
+            _ <- controller.stopSimulation()
+            _ <- ZIO.succeed(controller.isRunning shouldBe true)
+            _ <- ZIO.succeed(flag.isSet shouldBe true)
+          yield ()
+        }.getOrThrowFiberFailure()

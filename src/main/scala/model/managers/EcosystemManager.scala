@@ -17,7 +17,7 @@ class EcosystemManager(refWorld: Ref[World]):
   private val GrassFrequency = 100
   private val GrassAmount = 100
 
-  def tick(): UIO[Unit] = 
+  def tick(): UIO[Boolean] =
     for 
       world <- refWorld.get
       updatedWorld <- directions.toList.foldLeft(ZIO.succeed(world)): (accZIO, entry) =>
@@ -34,7 +34,7 @@ class EcosystemManager(refWorld: Ref[World]):
                   updateWorldAfterSheepMovement(accWorld, updatedSheep)
                 case None => ZIO.succeed(accWorld)
                 
-      _ <- ZIO.succeed: 
+      _ <- ZIO.succeed:
         tickCounter += 1
       finalWorld <- if tickCounter >= GrassFrequency then
         for
@@ -46,7 +46,9 @@ class EcosystemManager(refWorld: Ref[World]):
       _ <- refWorld.set(finalWorld)
       _ <- ZIO.succeed:
         directions = directions.filter(entry => finalWorld.wolfById(entry._1).isDefined || finalWorld.sheepById(entry._1).isDefined)
-    yield ()
+      isExtinct <- ZIO.succeed:
+        finalWorld.wolves.isEmpty && finalWorld.sheep.isEmpty
+    yield isExtinct
 
   private def updateWolfPosition(world: World, wolfEntity: Wolf, dx: Double, dy: Double): Wolf =
     val newX = (wolfEntity.position.x + dx * wolfEntity.speed + world.width) % world.width

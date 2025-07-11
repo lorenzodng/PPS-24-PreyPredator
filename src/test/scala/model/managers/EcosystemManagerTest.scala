@@ -2,9 +2,9 @@ package model.managers
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import model._
-import model.entities._
-import zio._
+import model.*
+import model.entities.*
+import zio.*
 
 class EcosystemManagerTest extends AnyFunSuite with Matchers:
 
@@ -403,4 +403,15 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
         }
 
 
+  test("All entities die"):
+    val world = World(Width, Height, Seq.empty, Seq.empty, Seq.empty)
+    val ecosystemManager = createManager(world)
+    Unsafe.unsafe:
+      implicit u =>
+        runtime.unsafe.run {
+          for
+            extinct <- ecosystemManager.tick()
+            _ <- ZIO.succeed(extinct shouldBe true)
+          yield ()
+        }.getOrThrowFiberFailure()
 
