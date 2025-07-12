@@ -25,8 +25,8 @@ class SimulationView(ecosystemController: EcosystemController) extends MainFrame
     spinner.setMaximumSize(fixedSize)
     spinner
 
-  private val wolvesSpinner = createCompactSpinner(10, 0, 1000, 1)
-  private val sheepSpinner = createCompactSpinner(100, 0, 1000, 1)
+  private val wolvesSpinner = createCompactSpinner(10, 0, 500, 1)
+  private val sheepSpinner = createCompactSpinner(100, 0, 500, 1)
   private val grassSpinner = createCompactSpinner(500, 0, 1000, 1)
   private val startButton = new Button("Start") { enabled = true }
   private val stopButton = new Button("Stop") { enabled = false }
@@ -82,15 +82,23 @@ class SimulationView(ecosystemController: EcosystemController) extends MainFrame
         val nWolves = wolvesSpinner.getValue.asInstanceOf[Int]
         val nSheep = sheepSpinner.getValue.asInstanceOf[Int]
         val nGrass = grassSpinner.getValue.asInstanceOf[Int]
+        if (nWolves + nSheep) == 0 then
+          javax.swing.JOptionPane.showMessageDialog(
+            peer,
+            "Select at least one wolf or sheep",
+            "Configuration error",
+            javax.swing.JOptionPane.WARNING_MESSAGE
+          )
+        else
         unsafe:
           implicit u =>
             runtime.unsafe.run(ecosystemController.startSimulation(nWolves, nSheep, nGrass))
-        startButton.enabled = false
-        stopButton.enabled = true
-        resetButton.enabled = false
-        wolvesSpinner.setEnabled(false)
-        sheepSpinner.setEnabled(false)
-        grassSpinner.setEnabled(false)
+          startButton.enabled = false
+          stopButton.enabled = true
+          resetButton.enabled = false
+          wolvesSpinner.setEnabled(false)
+          sheepSpinner.setEnabled(false)
+          grassSpinner.setEnabled(false)
 
       else if b eq stopButton then
         unsafe:
