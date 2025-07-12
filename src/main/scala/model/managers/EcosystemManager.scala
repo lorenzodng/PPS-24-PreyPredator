@@ -10,12 +10,13 @@ trait MovableEntity[T]:
 
 class EcosystemManager(refWorld: Ref[World]):
 
-  private var directions: Map[EntityId.Type, (Double, Double)] = Map.empty
-  private var tickCounter: Int = 0
   private val EnergyLostForMovement = 0.2
   private val EnergyLostForReproduction = 20
-  private val GrassFrequency = 100
-  private val GrassAmount = 100
+  
+  private var directions: Map[EntityId.Type, (Double, Double)] = Map.empty
+  private var tickCounter: Int = 0
+  private var grassAmount: Int = _
+  private var grassFrequency: Int = _
 
   def tick(): UIO[Boolean] =
     for 
@@ -36,11 +37,11 @@ class EcosystemManager(refWorld: Ref[World]):
                 
       _ <- ZIO.succeed:
         tickCounter += 1
-      finalWorld <- if tickCounter >= GrassFrequency then
+      finalWorld <- if tickCounter >= grassFrequency then
         for
           _ <- ZIO.succeed:
             tickCounter = 0
-          newGrass = Grass.generateRandomGrass(GrassAmount, updatedWorld.width, updatedWorld.height)
+          newGrass = Grass.generateRandomGrass(grassAmount, updatedWorld.width, updatedWorld.height)
         yield updatedWorld.addGrass(newGrass)
       else ZIO.succeed(updatedWorld)
       _ <- refWorld.set(finalWorld)
@@ -145,7 +146,15 @@ class EcosystemManager(refWorld: Ref[World]):
 
   def setWorld(newWorld: World): UIO[Unit] =
     refWorld.set(newWorld)
-    
-  //per testing  
+
+  def setGrassInterval(grassInterval: Int, sleepTime: Int): UIO[Unit] =
+    ZIO.succeed:
+      grassFrequency = grassInterval / sleepTime
+
+  def setGrassGenerated(grassGenerated: Int): UIO[Unit] =
+    ZIO.succeed:
+      grassAmount = grassGenerated
+
+  //per testing
   def getDirections: Map[EntityId.Type, (Double, Double)] =
-    directions
+      directions
