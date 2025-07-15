@@ -4,14 +4,18 @@ import model.World
 import model.managers.EcosystemManager
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import zio.{Ref, Runtime, Unsafe, ZIO}
+import zio.{Ref, Runtime, UIO, Unsafe, ZIO}
 
 class EcosystemControllerTest extends AnyFunSuite with Matchers:
 
-  val Width = 100
-  val Height = 100
-  
-  val world: World = World(Width, Height, Seq.empty, Seq.empty, Seq.empty)
+  val width = 100
+  val height = 100
+  val numWolves = 1
+  val numSheep = 1
+  val numGrass = 1
+  val grassInterval = 500
+  val grassGenerated = 20
+  val world: World = World(width, height, Seq.empty, Seq.empty, Seq.empty)
   val runtime: Runtime[Any] = Runtime.default
   val refWorld: Ref[World] = Unsafe.unsafe:
     implicit u =>
@@ -19,57 +23,36 @@ class EcosystemControllerTest extends AnyFunSuite with Matchers:
   val ecosystemManager = new EcosystemManager(refWorld)
   val flag: Flag.type = Flag
   val controller = new EcosystemController(ecosystemManager, Flag)
-  val numWolves = 1
-  val numSheep = 1
-  val numGrass = 1
 
-  test("Start the simulation"):
+  def runUnsafe[A](zio: UIO[A]): A =
     Unsafe.unsafe:
-      implicit u =>
-        runtime.unsafe.run {
-          for
-            _ <- controller.startSimulation(numWolves, numSheep, numGrass)
-            _ = controller.isRunning shouldBe true
-            _ = flag.isSet shouldBe false
-          yield ()
-        }.getOrThrowFiberFailure()
+      implicit u => runtime.unsafe.run(zio).getOrThrowFiberFailure()
 
-  test("Stop the simulation"):
-    Unsafe.unsafe:
-      implicit u =>
-        runtime.unsafe.run {
-          for
-            _ <- controller.startSimulation(numWolves, numSheep, numGrass)
-            _ <- controller.stopSimulation()
-            _ <- ZIO.succeed(controller.isRunning shouldBe true)
-            _ <- ZIO.succeed(flag.isSet shouldBe true)
-          yield ()
-        }.getOrThrowFiberFailure()
+  test("Start simulation"):
+    runUnsafe:
+      for
+        _ <- controller.startSimulation(numWolves, numSheep, numGrass, grassInterval, grassGenerated, width, height)
+        _ <- ZIO.succeed(controller.isRunning shouldBe true)
+        _ <- ZIO.succeed(flag.isSet shouldBe false)
+      yield ()
 
-  test("Reset the simulation") :
-    Unsafe.unsafe:
-      implicit u =>
-        runtime.unsafe.run {
-          for
-            _ <- controller.startSimulation(numWolves, numSheep, numGrass)
-            _ <- controller.stopSimulation()
-            _ <- controller.resetSimulation()
-            world <- controller.ecosystemManager.getWorld
-            _ <- ZIO.succeed(controller.isRunning shouldBe false)
-            _ <- ZIO.succeed(flag.isSet shouldBe true)
-            _ <- ZIO.succeed(world.entities.isEmpty shouldBe true)
-          yield ()
-        }.getOrThrowFiberFailure()
+  test("Stop simulation"):
+    runUnsafe:
+      for
+        _ <- controller.startSimulation(numWolves, numSheep, numGrass, grassInterval, grassGenerated, width, height)
+        _ <- controller.stopSimulation()
+        _ <- ZIO.succeed(controller.isRunning shouldBe true)
+        _ <- ZIO.succeed(flag.isSet shouldBe true)
+      yield ()
 
-
-  test("Stop the simulation"):
-    Unsafe.unsafe:
-      implicit u =>
-        runtime.unsafe.run {
-          for
-            _ <- controller.startSimulation(numWolves, numSheep, numGrass)
-            _ <- controller.stopSimulation()
-            _ <- ZIO.succeed(controller.isRunning shouldBe true)
-            _ <- ZIO.succeed(flag.isSet shouldBe true)
-          yield ()
-        }.getOrThrowFiberFailure()
+  test("Reset simulation") :
+    runUnsafe:
+      for
+        _ <- controller.startSimulation(numWolves, numSheep, numGrass, grassInterval, grassGenerated, width, height)
+        _ <- controller.stopSimulation()
+        _ <- controller.resetSimulation()
+        world <- controller.ecosystemManager.getWorld
+        _ <- ZIO.succeed(controller.isRunning shouldBe false)
+        _ <- ZIO.succeed(flag.isSet shouldBe true)
+        _ <- ZIO.succeed(world.entities.isEmpty shouldBe true)
+      yield ()

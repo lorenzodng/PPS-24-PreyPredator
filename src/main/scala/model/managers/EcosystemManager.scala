@@ -10,9 +10,8 @@ trait MovableEntity[T]:
 
 class EcosystemManager(refWorld: Ref[World]):
 
-  private val EnergyLostForMovement = 0.2
-  private val EnergyLostForReproduction = 20
-  
+  private val energyLostForMovement = 0.2
+  private val energyLostForReproduction = 20
   private var directions: Map[EntityId.Type, (Double, Double)] = Map.empty
   private var tickCounter: Int = 0
   private var grassAmount: Int = _
@@ -21,95 +20,104 @@ class EcosystemManager(refWorld: Ref[World]):
   def tick(): UIO[Boolean] =
     for 
       world <- refWorld.get
-      updatedWorld <- directions.toList.foldLeft(ZIO.succeed(world)): (accZIO, entry) =>
-        accZIO.flatMap: accWorld =>
-          val (id, (dx, dy)) = entry
-          accWorld.wolfById(id) match
-            case Some(wolf) =>
-              val updatedWolf = updateWolfPosition(accWorld, wolf, dx, dy)
-              updateWorldAfterWolfMovement(accWorld, updatedWolf)
-            case None =>
-              accWorld.sheepById(id) match
-                case Some(sheep) =>
-                  val updatedSheep = updateSheepPosition(accWorld, sheep, dx, dy)
-                  updateWorldAfterSheepMovement(accWorld, updatedSheep)
-                case None => ZIO.succeed(accWorld)
-                
+      updatedWorld <- updateEntitiesPositions(world)
       _ <- ZIO.succeed:
         tickCounter += 1
-      finalWorld <- if tickCounter >= grassFrequency then
-        for
-          _ <- ZIO.succeed:
-            tickCounter = 0
-          newGrass = Grass.generateRandomGrass(grassAmount, updatedWorld.width, updatedWorld.height)
-        yield updatedWorld.addGrass(newGrass)
-      else ZIO.succeed(updatedWorld)
-      _ <- refWorld.set(finalWorld)
-      _ <- ZIO.succeed:
-        directions = directions.filter(entry => finalWorld.wolfById(entry._1).isDefined || finalWorld.sheepById(entry._1).isDefined)
-      isExtinct <- ZIO.succeed:
-        finalWorld.wolves.isEmpty && finalWorld.sheep.isEmpty
+      finalWorld <- generateGrass(updatedWorld)
+      isExtinct <- updateStateAfterTick(finalWorld)
     yield isExtinct
+
+  private def updateEntitiesPositions(initialWorld: World): UIO[World] =
+    directions.toList.foldLeft(ZIO.succeed(initialWorld)): (accZIO, entry) =>
+      val (id, (dx, dy)) = entry
+      accZIO.flatMap(world => updateEntityPosition(world, id, dx, dy))
+
+  private def updateEntityPosition(world: World, id: EntityId.Type, dx: Double, dy: Double): UIO[World] =
+    world.wolfById(id) match
+      case Some(wolf) =>
+        val updatedWolf = updateWolfPosition(world, wolf, dx, dy)
+        updateWorldAfterWolfMovement(world, updatedWolf)
+      case _ => world.sheepById(id) match
+        case Some(sheep) =>
+          val updatedSheep = updateSheepPosition(world, sheep, dx, dy)
+          updateWorldAfterSheepMovement(world, updatedSheep)
+        case _ => ZIO.succeed(world)
 
   private def updateWolfPosition(world: World, wolfEntity: Wolf, dx: Double, dy: Double): Wolf =
     val newX = (wolfEntity.position.x + dx * wolfEntity.speed + world.width) % world.width
     val newY = (wolfEntity.position.y + dy * wolfEntity.speed + world.height) % world.height
     val newPosition = wolfEntity.position.copy(x = newX, y = newY)
-    val newEnergy = wolfEntity.energy - EnergyLostForMovement
+    val newEnergy = wolfEntity.energy - energyLostForMovement
     wolfEntity.copy(position = newPosition, energy = newEnergy)
 
   private def updateSheepPosition(world: World, sheepEntity: Sheep, dx: Double, dy: Double): Sheep =
     val newX = (sheepEntity.position.x + dx * sheepEntity.speed + world.width) % world.width
     val newY = (sheepEntity.position.y + dy * sheepEntity.speed  + world.height) % world.height
     val newPosition = sheepEntity.position.copy(x = newX, y = newY)
-    val newEnergy = sheepEntity.energy - EnergyLostForMovement
+    val newEnergy = sheepEntity.energy - energyLostForMovement
     sheepEntity.copy(position = newPosition, energy = newEnergy)
 
   private def updateWorldAfterWolfMovement(world: World, wolfEntity: Wolf): UIO[World] =
     val sheepEaten = world.sheep.filter(sheep => EatingManager.canEatSheep(wolfEntity, sheep))
     val wolfEatsSheep = sheepEaten.foldLeft(wolfEntity)((w, sheep) => w.eat)
     val afterEating = world.updateWolf(wolfEatsSheep).removeSheep(sheepEaten)
-    val wolvesCanReproduce = afterEating.wolves.filter(wolf => LifeManager.canBornEntity(wolfEntity, wolf))
-    ZIO.foldLeft(wolvesCanReproduce)(afterEating): (acc, w) =>
-      val newWolf = createNewWolf(wolfEntity, w)
-      val parent1 = wolfEntity.copy(energy = wolfEntity.energy - EnergyLostForReproduction)
-      val parent2 = w.copy(energy = w.energy - EnergyLostForReproduction)
+    val wolvesCanReproduce = afterEating.wolves.filter(wolf => LifeManager.canBornEntity(wolfEatsSheep, wolf))
+    for
+      afterReproduction <- handleWolfReproduction(afterEating, wolfEntity, wolvesCanReproduce)
+      finalWorld <- ZIO.succeed(handleWolfDeath(afterReproduction, wolfEatsSheep))
+    yield finalWorld
+
+  private def handleWolfReproduction(world: World, wolfEntity: Wolf, wolvesCanReproduce: Seq[Wolf]): UIO[World] =
+    ZIO.foldLeft(wolvesCanReproduce)(world): (acc, w) =>
       for
+        newWolf <- ZIO.succeed(createNewWolf(wolfEntity, w))
         _ <- ZIO.succeed:
           directions = directions.updated(newWolf.id, randomDirection())
-        sepPair <- separateEntities(parent1, parent2)
-        (sep1, sep2) = sepPair
-        separatedUpdated = acc.updateWolf(sep1).updateWolf(sep2)
-      yield separatedUpdated.copy(wolves = separatedUpdated.wolves :+ newWolf)
-    .map: afterReproduction =>
-      val updatedWolves =
-        if LifeManager.canDieEntity(wolfEatsSheep) then
-          afterReproduction.wolves.filterNot(_.id == wolfEatsSheep.id)
-        else afterReproduction.wolves
-      afterReproduction.copy(wolves = updatedWolves)
+        parentsUpdated <- updateWolfParents(acc, wolfEntity, w)
+        updatedWorld <- ZIO.succeed(parentsUpdated.copy(wolves = parentsUpdated.wolves :+ newWolf))
+      yield updatedWorld
+
+  private def updateWolfParents(world: World, parent1: Wolf, parent2: Wolf): UIO[World] =
+    for
+      sepPair <- separateEntities(parent1.copy(energy = parent1.energy - energyLostForReproduction), parent2.copy(energy = parent2.energy - energyLostForReproduction))
+      (sep1, sep2) = sepPair
+    yield world.updateWolf(sep1).updateWolf(sep2)
+
+  private def handleWolfDeath(world: World, wolf: Wolf): World =
+    if LifeManager.canDieEntity(wolf) then
+      world.copy(wolves = world.wolves.filterNot(_.id == wolf.id))
+    else world
 
   private def updateWorldAfterSheepMovement(world: World, sheepEntity: Sheep): UIO[World] =
     val grassEaten = world.grass.filter(grass => EatingManager.canEatGrass(sheepEntity, grass))
     val sheepEatsGrass = grassEaten.foldLeft(sheepEntity)((s, grass) => s.eat)
     val afterEating = world.updateSheep(sheepEatsGrass).removeGrass(grassEaten)
-    val sheepCanReproduce = afterEating.sheep.filter(sheep => LifeManager.canBornEntity(sheepEntity, sheep))
-    ZIO.foldLeft(sheepCanReproduce)(afterEating): (acc, s) =>
-      val newSheep = createNewSheep(sheepEntity, s)
-      val parent1 = sheepEntity.copy(energy = sheepEntity.energy - EnergyLostForReproduction)
-      val parent2 = s.copy(energy = s.energy - EnergyLostForReproduction)
+    val sheepCanReproduce = afterEating.sheep.filter(sheep => LifeManager.canBornEntity(sheepEatsGrass, sheep))
+    for
+      afterReproduction <- handleSheepReproduction(afterEating, sheepEntity, sheepCanReproduce)
+      finalWorld <- ZIO.succeed(handleSheepDeath(afterReproduction, sheepEatsGrass))
+    yield finalWorld
+
+  private def handleSheepReproduction(world: World, sheepEntity: Sheep, sheepCanReproduce: Seq[Sheep]): UIO[World] =
+    ZIO.foldLeft(sheepCanReproduce)(world): (acc, s) =>
       for
+        newSheep <- ZIO.succeed(createNewSheep(sheepEntity, s))
         _ <- ZIO.succeed:
           directions = directions.updated(newSheep.id, randomDirection())
-        sepPair <- separateEntities(parent1, parent2)
-        (sep1, sep2) = sepPair
-        separatedUpdated = acc.updateSheep(sep1).updateSheep(sep2)
-      yield separatedUpdated.copy(sheep = separatedUpdated.sheep :+ newSheep)
-    .map: afterReproduction =>
-      val updatedSheep =
-        if LifeManager.canDieEntity(sheepEatsGrass) then
-          afterReproduction.sheep.filterNot(_.id == sheepEatsGrass.id)
-        else afterReproduction.sheep
-      afterReproduction.copy(sheep = updatedSheep)
+        parentsUpdated <- updateSheepParents(acc, sheepEntity, s)
+        updatedWorld <- ZIO.succeed(parentsUpdated.copy(sheep = parentsUpdated.sheep :+ newSheep))
+      yield updatedWorld
+
+  private def updateSheepParents(world: World, parent1: Sheep, parent2: Sheep): UIO[World] =
+    for
+      sepPair <- separateEntities(parent1.copy(energy = parent1.energy - energyLostForReproduction), parent2.copy(energy = parent2.energy - energyLostForReproduction))
+      (sep1, sep2) = sepPair
+    yield world.updateSheep(sep1).updateSheep(sep2)
+
+  private def handleSheepDeath(world: World, sheep: Sheep): World =
+    if LifeManager.canDieEntity(sheep) then
+      world.copy(sheep = world.sheep.filterNot(_.id == sheep.id))
+    else world
   
   private def createNewWolf(parent1: Wolf, parent2: Wolf): Wolf =
     val newId = EntityId.random
@@ -122,20 +130,41 @@ class EcosystemManager(refWorld: Ref[World]):
     Sheep(newId, newPosition)
 
   private def separateEntities[T <: MovableEntity[T]](e1: T, e2: T, separationDistance: Double = 20.0): UIO[(T, T)] =
-    for 
+    for
       world <- refWorld.get
-    yield 
-      val dx = e1.position.x - e2.position.x
-      val dy = e1.position.y - e2.position.y
-      val distance = math.sqrt(dx * dx + dy * dy)
-      val separationVector = if (distance == 0) (1.0, 0.0) else (dx / distance, dy / distance)
-      val newPos1 = e1.position.copy(x = (e1.position.x + separationVector._1 * separationDistance).max(0).min(world.width), y = (e1.position.y + separationVector._2 * separationDistance).max(0).min(world.height))
-      val newPos2 = e2.position.copy(x = (e2.position.x - separationVector._1 * separationDistance).max(0).min(world.width), y = (e2.position.y - separationVector._2 * separationDistance).max(0).min(world.height))
+    yield
+      val (newPos1, newPos2) = calculateSeparationPositions(e1.position, e2.position, separationDistance, world.width, world.height)
       (e1.newPosition(newPos1), e2.newPosition(newPos2)) // non posso fare direttamente e1.copy(position = newPos) perchè copy ha bisogno di conoscere il tipo di entità e1.
+
+  private def calculateSeparationPositions(pos1: Position, pos2: Position, separationDistance: Double, maxWidth: Double, maxHeight: Double): (Position, Position) =
+    val dx = pos1.x - pos2.x
+    val dy = pos1.y - pos2.y
+    val distance = math.sqrt(dx * dx + dy * dy)
+    val separationVector = if (distance == 0) (1.0, 0.0) else (dx / distance, dy / distance)
+    val newPos1 = Position((pos1.x + separationVector._1 * separationDistance).max(0).min(maxWidth), (pos1.y + separationVector._2 * separationDistance).max(0).min(maxHeight))
+    val newPos2 = Position((pos2.x - separationVector._1 * separationDistance).max(0).min(maxWidth), (pos2.y - separationVector._2 * separationDistance).max(0).min(maxHeight))
+    (newPos1, newPos2)
 
   def randomDirection(): (Double, Double) =
     val angle = Math.random() * 2 * Math.PI
     (Math.cos(angle), Math.sin(angle))
+
+  private def generateGrass(updatedWorld: World): UIO[World] =
+    if tickCounter >= grassFrequency then
+      for
+        _ <- ZIO.succeed:
+          tickCounter = 0
+        newGrass = Grass.generateRandomGrass(grassAmount, updatedWorld.width, updatedWorld.height)
+      yield updatedWorld.addGrass(newGrass)
+    else ZIO.succeed(updatedWorld)
+
+  private def updateStateAfterTick(finalWorld: World): UIO[Boolean] =
+    for
+      _ <- refWorld.set(finalWorld)
+      _ <- ZIO.succeed:
+        directions = directions.filter(entry => finalWorld.wolfById(entry._1).isDefined || finalWorld.sheepById(entry._1).isDefined)
+      isExtinct <- ZIO.succeed(finalWorld.wolves.isEmpty && finalWorld.sheep.isEmpty)
+    yield isExtinct
   
   def moveEntityDirection(id: EntityId.Type, dx: Double, dy: Double): UIO[Unit] =
     ZIO.succeed:

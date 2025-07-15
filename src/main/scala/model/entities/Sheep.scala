@@ -12,16 +12,9 @@ case class Sheep(id: EntityId.Type, position: Position, energy: Double = 50, mas
       sheepOpt = world.sheepById(id)
       grassOpt = nearestGrass(id, world)
       _ <- (sheepOpt, grassOpt) match
-        case (Some(sheep), Some(food)) =>
-          val dx = food.position.x - sheep.position.x
-          val dy = food.position.y - sheep.position.y
-          val distance = math.hypot(dx, dy)
-          if distance > 0 then
-            val normalizedDx = dx / distance
-            val normalizedDy = dy / distance
-            ecosystemManager.moveEntityDirection(id, normalizedDx, normalizedDy)
-          else
-            ZIO.unit
+        case (Some(sheep), Some(food)) => sheep.position.directionTo(food.position) match
+          case Some((dx, dy)) => ecosystemManager.moveEntityDirection(id, dx, dy)
+          case None => ZIO.unit
         case _ => ZIO.unit
     yield ()
   
@@ -30,8 +23,16 @@ case class Sheep(id: EntityId.Type, position: Position, energy: Double = 50, mas
     copy(energy = energy + gain)
 
   private def nearestGrass(sheep: EntityId.Type, world: World): Option[Grass] =
-    world.grass
-      .sortBy(grass => world.sheepById(sheep).map(s => s.position.distanceTo(grass)).getOrElse(Double.MaxValue))
-      .headOption
+    world.grass.sortBy(grass => world.sheepById(sheep).map(s => s.position.distanceTo(grass)).getOrElse(Double.MaxValue)).headOption
 
+  extension (from: Position)
+    private def directionTo(to: Position): Option[(Double, Double)] =
+      val dx = to.x - from.x
+      val dy = to.y - from.y
+      val distance = math.hypot(dx, dy)
+      if distance > 0 then
+        Some((dx / distance, dy / distance))
+      else None
+
+  //è necessario per non duplicare separateEntities
   override def newPosition(newPos: Position): Sheep = this.copy(position = newPos)

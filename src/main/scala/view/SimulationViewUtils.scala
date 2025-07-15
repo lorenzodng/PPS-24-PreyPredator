@@ -2,7 +2,6 @@ package view
 
 import model.World
 import view.SimulationIcons.*
-
 import java.awt.Graphics2D
 
 object SimulationViewUtils:

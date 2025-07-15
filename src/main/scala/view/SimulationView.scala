@@ -12,26 +12,26 @@ import zio.Runtime
 
 class SimulationView(ecosystemController: EcosystemController) extends MainFrame:
 
-  private val InitialWolves = 10
-  private val MinWolves = 0
-  private val MaxWolves = 500
-  private val StepWolves = 1
-  private val InitialSheep = 100
-  private val MinSheep = 0
-  private val MaxSheep = 500
-  private val StepSheep = 1
-  private val InitialGrass = 500
-  private val MinGrass = 0
-  private val MaxGrass = 1000
-  private val StepGrass = 1
-  private val InitialGrassInterval = 2000
-  private val MinGrassInterval = 500
-  private val MaxGrassInterval = 5000
-  private val StepGrassInterval = 500
-  private val InitialGrassGenerated = 100
-  private val MinGrassGenerated = 20
-  private val MaxGrassGenerated = 300
-  private val StepGrassGenerated = 10
+  private val initialWolves = 10
+  private val minWolves = 0
+  private val maxWolves = 500
+  private val stepWolves = 1
+  private val initialSheep = 100
+  private val minSheep = 0
+  private val maxSheep = 500
+  private val stepSheep = 1
+  private val initialGrass = 500
+  private val minGrass = 0
+  private val maxGrass = 1000
+  private val stepGrass = 1
+  private val initialGrassInterval = 2000
+  private val minGrassInterval = 500
+  private val maxGrassInterval = 5000
+  private val stepGrassInterval = 500
+  private val initialGrassGenerated = 150
+  private val minGrassGenerated = 20
+  private val maxGrassGenerated = 300
+  private val stepGrassGenerated = 10
 
   title = "Ecosystem Simulation"
   preferredSize = new Dimension(1300, 800)
@@ -43,16 +43,14 @@ class SimulationView(ecosystemController: EcosystemController) extends MainFrame
     val editor = spinner.getEditor.asInstanceOf[javax.swing.JSpinner.DefaultEditor]
     editor.getTextField.setColumns(5)
     val fixedSize = new Dimension(80, 20)
-    spinner.setMinimumSize(fixedSize)
     spinner.setPreferredSize(fixedSize)
-    spinner.setMaximumSize(fixedSize)
     spinner
 
-  private val wolvesSpinner = createCompactSpinner(InitialWolves, MinWolves, MaxWolves, StepWolves)
-  private val sheepSpinner = createCompactSpinner(InitialSheep, MinSheep, MaxSheep, StepSheep)
-  private val grassSpinner = createCompactSpinner(InitialGrass, MinGrass, MaxGrass, StepGrass)
-  private val grassIntervalSpinner = createCompactSpinner(InitialGrassInterval, MinGrassInterval, MaxGrassInterval, StepGrassInterval)
-  private val grassGeneratedSpinner = createCompactSpinner(InitialGrassGenerated, MinGrassGenerated, MaxGrassGenerated, StepGrassGenerated)
+  private val wolvesSpinner = createCompactSpinner(initialWolves, minWolves, maxWolves, stepWolves)
+  private val sheepSpinner = createCompactSpinner(initialSheep, minSheep, maxSheep, stepSheep)
+  private val grassSpinner = createCompactSpinner(initialGrass, minGrass, maxGrass, stepGrass)
+  private val grassIntervalSpinner = createCompactSpinner(initialGrassInterval, minGrassInterval, maxGrassInterval, stepGrassInterval)
+  private val grassGeneratedSpinner = createCompactSpinner(initialGrassGenerated, minGrassGenerated, maxGrassGenerated, stepGrassGenerated)
 
   private val startButton = new Button("Start") { enabled = true }
   private val stopButton = new Button("Stop") { enabled = false }
@@ -109,16 +107,7 @@ class SimulationView(ecosystemController: EcosystemController) extends MainFrame
 
   private val controlsPanel = new BoxPanel(Orientation.Vertical):
     background = new Color(230, 230, 230)
-    contents += spinnersRow
-    contents += Swing.VStrut(4)
-    contents += new Component:
-      override lazy val peer: javax.swing.JComponent = new javax.swing.JSeparator():
-        override def paintComponent(g: java.awt.Graphics): Unit =
-          g.setColor(Color.BLACK)
-          g.fillRect(0, 0, getWidth, 2)
-      preferredSize = new Dimension(1400, 1)
-    contents += Swing.VStrut(4)
-    contents += buttonsRow
+    contents ++= Seq(spinnersRow, Swing.VStrut(4), makeSeparator(), Swing.VStrut(4), buttonsRow)
 
   private val statusPanel = new FlowPanel(FlowPanel.Alignment.Center)(
     wolfCountLabel,
@@ -143,23 +132,14 @@ class SimulationView(ecosystemController: EcosystemController) extends MainFrame
         val nGrass = grassSpinner.getValue.asInstanceOf[Int]
         val nGrassInterval = grassIntervalSpinner.getValue.asInstanceOf[Int]
         val nGrassGenerated = grassGeneratedSpinner.getValue.asInstanceOf[Int]
-
         val width = worldPanel.size.width
         val height = worldPanel.size.height
-
         if (nWolves + nSheep) == 0 then
-          javax.swing.JOptionPane.showMessageDialog(
-            peer,
-            "Select at least one wolf or sheep",
-            "Configuration error",
-            javax.swing.JOptionPane.WARNING_MESSAGE
-          )
+          javax.swing.JOptionPane.showMessageDialog(peer, "Select at least one wolf or sheep", "Configuration error", javax.swing.JOptionPane.WARNING_MESSAGE)
         else
           unsafe:
             implicit u =>
-              runtime.unsafe.run(
-                ecosystemController.startSimulation(nWolves, nSheep, nGrass, nGrassInterval, nGrassGenerated, width, height)
-              )
+              runtime.unsafe.run(ecosystemController.startSimulation(nWolves, nSheep, nGrass, nGrassInterval, nGrassGenerated, width, height))
               startButton.enabled = false
               stopButton.enabled = true
               resetButton.enabled = false
@@ -190,6 +170,14 @@ class SimulationView(ecosystemController: EcosystemController) extends MainFrame
         grassGeneratedSpinner.setEnabled(true)
         resetButton.enabled = false
   }
+
+  private def makeSeparator(): Component =
+    new Component:
+      override lazy val peer: javax.swing.JComponent = new javax.swing.JSeparator():
+        override def paintComponent(g: java.awt.Graphics): Unit =
+          g.setColor(Color.BLACK)
+          g.fillRect(0, 0, getWidth, 2)
+      preferredSize = new Dimension(1400, 1)
 
   def updateButtons(): Unit =
     startButton.enabled = false

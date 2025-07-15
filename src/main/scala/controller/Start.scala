@@ -17,6 +17,7 @@ import zio.{Ref, Runtime}
       val stopFlag = Flag
       val ecosystemController = new EcosystemController(ecosystemManager, stopFlag)
       val simulationView = new SimulationView(ecosystemController)
+      
       ecosystemController.setUpdateViewCallback(() => 
         simulationView.updateView()
       )
