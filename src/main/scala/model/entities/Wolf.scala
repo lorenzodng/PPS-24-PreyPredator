@@ -1,11 +1,23 @@
 package model.entities
 
 import model.*
-import model.managers.{EcosystemManager, MovableEntity}
+import model.managers.EcosystemManager
 import zio.{UIO, ZIO}
 
+/**
+ * Represents a wolf entity in the ecosystem.
+ *
+ * Inherits properties from [[Entity]].
+ * Wolf moves towards the nearest sheep and eats to gain energy.
+ */
 case class Wolf(id: EntityId.Type, position: Position, energy: Double = 50, mass: Int = 1300, speed: Double = 2) extends Entity with MovableEntity[Wolf]:
-  
+
+  /**
+   * Moves the wolf towards the nearest sheep if available.
+   *
+   * @param ecosystemManager the manager to interact with the ecosystem state
+   * @return a ZIO effect representing the move operation
+   */
   def move(ecosystemManager: EcosystemManager): UIO[Unit] =
     for
       world <- ecosystemManager.getWorld
@@ -17,14 +29,32 @@ case class Wolf(id: EntityId.Type, position: Position, energy: Double = 50, mass
           case None => ZIO.unit
         case _ => ZIO.unit
     yield ()
-  
+
+  /**
+   * Increases the wolf's energy by eating.
+   *
+   * @return a new wolf instance with increased energy
+   */
   def eat: Wolf =
     val gain = 10
     copy(energy = energy + gain)
-    
+
+  /**
+   * Finds the nearest sheep to the wolf in the world.
+   *
+   * @param wolf  the ID of the wolf
+   * @param world the current state of the world
+   * @return an option containing the nearest sheep if any
+   */
   private def nearestSheep(wolf: EntityId.Type, world: World): Option[Sheep] =
     world.sheep.sortBy(sheep => world.wolfById(wolf).map(w => w.position.distanceTo(sheep)).getOrElse(Double.MaxValue)).headOption
 
+  /**
+   * Extension method on Position to calculate the normalized direction vector to another position.
+   *
+   * @param to the target position
+   * @return an option containing a tuple (dx, dy) representing the unit direction vector, or nothing if positions coincide
+   */
   extension (from: Position)
     private def directionTo(to: Position): Option[(Double, Double)] =
       val dx = to.x - from.x
@@ -33,6 +63,11 @@ case class Wolf(id: EntityId.Type, position: Position, energy: Double = 50, mass
       if distance > 0 then
         Some((dx / distance, dy / distance))
       else None
-      
-  //è necessario per non duplicare separateEntities
+
+  /**
+   * Returns a new wolf instance with updated position.
+   *
+   * @param newPos the new position of the wolf
+   * @return a new wolf with the updated position
+   */
   override def newPosition(newPos: Position): Wolf = this.copy(position = newPos)
