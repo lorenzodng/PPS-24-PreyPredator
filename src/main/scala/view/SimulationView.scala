@@ -42,7 +42,7 @@ class SimulationView(controller: EcosystemController) extends MainFrame:
   /**
    * Manager responsible for handling interactions between the controller and the UI components.
    */
-  val manager = new SimulationViewManager(controller, controls, status, world)
+  val viewManager = new SimulationViewManager(controller, controls, status, world)
 
   /**
    * Assembles the GUI layout using a BorderPanel.
@@ -67,4 +67,4 @@ class SimulationView(controller: EcosystemController) extends MainFrame:
    * @param height the new height of the world panel.
    */
   private def handleResize(width: Int, height: Int): Unit =
-    manager.resizeWorld(width, height)
+    viewManager.resizeWorld(width, height)

@@ -32,10 +32,10 @@ import zio.{Ref, Runtime}
       val simulationView = new SimulationView(ecosystemController)
 
       ecosystemController.setUpdateViewCallback(() =>
-        simulationView.manager.updateView())
+        simulationView.viewManager.updateView())
 
       ecosystemController.setExtinctionCallback(() =>
-        simulationView.manager.updateView()
-        simulationView.manager.updateButtons())
+        simulationView.viewManager.updateView()
+        simulationView.viewManager.updateButtons())
 
       simulationView.open()
