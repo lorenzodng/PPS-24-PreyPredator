@@ -67,4 +67,4 @@ class SimulationView(controller: EcosystemController) extends MainFrame:
    * @param height the new height of the world panel.
    */
   private def handleResize(width: Int, height: Int): Unit =
-    viewManager.resizeWorld(width, height)
+    viewManager.onWorldResize(width, height)

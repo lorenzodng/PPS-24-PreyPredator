@@ -148,7 +148,7 @@ class SimulationViewManager(controller: EcosystemController, controls: ControlsP
    * @param width  the new width of the simulation world panel
    * @param height the new height of the simulation world panel
    */
-  def resizeWorld(width: Int, height: Int): Unit =
+  def onWorldResize(width: Int, height: Int): Unit =
     unsafe:
       implicit u =>
         runtime.unsafe.run(controller.resizeWorld(width, height))
