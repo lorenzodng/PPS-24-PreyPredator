@@ -120,11 +120,11 @@ class EcosystemController(val ecosystemManager: EcosystemManager, var stopFlag: 
    * @param nGrass  number of grass patches to generate if world is empty
    * @return a ZIO effect containing the updated world instance
    */
-  private def prepareWorld(width: Int, height: Int, nSheep: Int, nWolves: Int, nGrass: Int): UIO[World] =
+  private def prepareWorld(width: Int, height: Int, nWolves: Int, nSheep: Int, nGrass: Int): UIO[World] =
     for
       world <- ecosystemManager.getWorld
       updatedWorld <- if world.entities.isEmpty then
-        val newWorld = generateEntities(width, height, nSheep, nWolves, nGrass)
+        val newWorld = generateEntities(width, height, nWolves, nSheep, nGrass)
         moveEntitiesRandomly(newWorld)
       else ZIO.succeed(world)
     yield updatedWorld

@@ -10,11 +10,11 @@ import zio.{Ref, Runtime}
  * Main entry point to run the Ecosystem Simulation application.
  *
  * <p>
- * Initializes an empty world, creates the necessary components including the ecosystem manager, controller, and the simulation view. 
+ * Initializes an empty world and creates the necessary components to run the simulation. 
  * Sets up callbacks to update the view upon simulation state changes and opens the simulation window.
  * </p>
  *
- * This function is annotated with `@main` and executed when the application starts.
+ * This function is annotated with '@main' and executed when the application starts.
  */
 @main def runSimulation(): Unit =
 
@@ -22,18 +22,20 @@ import zio.{Ref, Runtime}
 
   unsafe:
     implicit u =>
-      val worldRef = Runtime.default.unsafe.run(Ref.make(emptyWorld)).getOrThrowFiberFailure()
+      val runtime = Runtime.default
+
+      val worldRef = runtime.unsafe.run(Ref.make(emptyWorld)).getOrThrowFiberFailure()
       val ecosystemManager = new EcosystemManager(worldRef)
       val stopFlag = Flag
       val ecosystemController = new EcosystemController(ecosystemManager, stopFlag)
+
       val simulationView = new SimulationView(ecosystemController)
 
       ecosystemController.setUpdateViewCallback(() =>
-        simulationView.updateView()
-      )
+        simulationView.manager.updateView())
+
       ecosystemController.setExtinctionCallback(() =>
-        simulationView.updateView()
-        simulationView.updateButtons()
-      )
+        simulationView.manager.updateView()
+        simulationView.manager.updateButtons())
 
       simulationView.open()
