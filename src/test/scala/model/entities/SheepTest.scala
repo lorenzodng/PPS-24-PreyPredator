@@ -25,7 +25,7 @@ class SheepTest extends AnyFunSuite with Matchers:
     runUnsafe:
       for
         _ <- sheep.move(ecosystemManager)
-        _ <- ecosystemManager.tick()
+        _ <- ecosystemManager.simulateStep()
         updatedWorld <- ecosystemManager.getWorld
         movedSheepOpt <- ZIO.succeed(updatedWorld.sheepById(sheep.id))
         _ <- movedSheepOpt match

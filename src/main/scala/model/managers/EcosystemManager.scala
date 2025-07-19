@@ -28,7 +28,7 @@ class EcosystemManager(refWorld: Ref[World]):
   /**
    * Counter tracking how many ticks have passed since the simulation started.
    */
-  private var tickCounter: Int = 0
+  private var stepCounter: Int = 0
 
   /**
    * Number of grass units to generate at each grass generation cycle.
@@ -46,12 +46,12 @@ class EcosystemManager(refWorld: Ref[World]):
    *
    * @return a ZIO effect representing whether all wolves and sheep are extinct
    */
-  def tick(): UIO[Boolean] =
+  def simulateStep(): UIO[Boolean] =
     for
       world <- refWorld.get
       updatedWorld <- updateEntitiesPositions(world)
       _ <- ZIO.succeed:
-        tickCounter += 1
+        stepCounter += 1
       finalWorld <- generateGrass(updatedWorld)
       isExtinct <- updateStateAfterTick(finalWorld)
     yield isExtinct
@@ -274,10 +274,10 @@ class EcosystemManager(refWorld: Ref[World]):
    * @return a ZIO effect containing the updated world with newly added grass
    */
   private def generateGrass(updatedWorld: World): UIO[World] =
-    if tickCounter >= grassFrequency then
+    if stepCounter >= grassFrequency then
       for
         _ <- ZIO.succeed:
-          tickCounter = 0
+          stepCounter = 0
         newGrass = Grass.generateRandomGrass(grassAmount, updatedWorld.width, updatedWorld.height)
       yield updatedWorld.addGrass(newGrass)
     else ZIO.succeed(updatedWorld)
