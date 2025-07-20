@@ -2,6 +2,8 @@ package model.entities
 
 import model.Position
 
+import java.util.UUID
+
 /**
  * Singleton object that defines and manages unique identifiers for entities in the ecosystem.
  */
@@ -18,7 +20,7 @@ object EntityId:
    *
    * @return a new random EntityId.Type
    */
-  def random: Type = java.util.UUID.randomUUID().toString
+  def random: Type = UUID.randomUUID().toString
 
 /**
  * Trait representing a generic entity in the ecosystem.
