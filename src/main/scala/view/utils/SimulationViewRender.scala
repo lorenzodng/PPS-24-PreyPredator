@@ -27,16 +27,16 @@ object SimulationViewRender:
       ((x - offsetX - radius).toInt, (y - offsetY - radius).toInt)
 
     world.grass.foreach: grass =>
-      val radius = grass.radius.toInt
+      val radius = grass.radius().toInt
       val (x, y) = toScreenTopLeft(grass.position.x, grass.position.y, radius, offsetX, offsetY)
       g.drawImage(grassIcon, x, y, radius * 2, radius * 2, null)
 
     world.sheep.foreach: sheep =>
-      val radius = sheep.radius.toInt
+      val radius = sheep.radius().toInt
       val (x, y) = toScreenTopLeft(sheep.position.x, sheep.position.y, radius, offsetX, offsetY)
       g.drawImage(sheepIcon, x, y, radius * 2, radius * 2, null)
 
     world.wolves.foreach: wolf =>
-      val radius = wolf.radius.toInt
+      val radius = wolf.radius().toInt
       val (x, y) = toScreenTopLeft(wolf.position.x, wolf.position.y, radius, offsetX, offsetY)
       g.drawImage(wolfIcon, x, y, radius * 2, radius * 2, null)

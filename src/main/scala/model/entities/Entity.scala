@@ -36,10 +36,13 @@ trait Entity:
   val mass: Int
   /** Movement speed of the entity */
   val speed: Double
-  /** Radius of the entity */
-  val radius: Double = math.sqrt(mass / math.Pi)
 
 /**
- * Container object for the opaque type `EntityId.Type` representing unique entity identifiers.
- * Provides utility methods related to EntityId, such as random ID generation.
+ * Companion object for the [[Entity]] trait.
+ *
+ * Provides a utility method for entities.
  */
+object Entity:
+  /** Extension method to compute the radius from mass */
+  extension (e: Entity)
+    def radius(): Double = math.sqrt(e.mass / math.Pi)
