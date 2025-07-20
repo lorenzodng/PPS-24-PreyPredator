@@ -18,6 +18,11 @@ case class Position(x: Double, y: Double):
     val dy = y - other.position.y
     math.hypot(dx, dy)
 
+/**
+ * Companion object for the [[Position]] case class.
+ *
+ * Provides a utility method related to position calculations within the simulation world.
+ */
 object Position:
 
   /**

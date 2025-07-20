@@ -3,8 +3,7 @@ package model.entities
 import model.Position
 
 /**
- * Container object for the opaque type `EntityId.Type` representing unique entity identifiers.
- * Provides utility methods related to EntityId, such as random ID generation.
+ * Singleton object that defines and manages unique identifiers for entities in the ecosystem.
  */
 object EntityId:
 
@@ -16,6 +15,7 @@ object EntityId:
 
   /**
    * Generates a new random unique EntityId as a UUID string.
+   *
    * @return a new random EntityId.Type
    */
   def random: Type = java.util.UUID.randomUUID().toString
@@ -36,3 +36,8 @@ trait Entity:
   val speed: Double
   /** Radius of the entity */
   val radius: Double = math.sqrt(mass / math.Pi)
+
+/**
+ * Container object for the opaque type `EntityId.Type` representing unique entity identifiers.
+ * Provides utility methods related to EntityId, such as random ID generation.
+ */

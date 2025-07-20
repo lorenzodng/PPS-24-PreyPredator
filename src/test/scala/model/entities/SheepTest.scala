@@ -34,7 +34,7 @@ class SheepTest extends AnyFunSuite with Matchers:
       yield ()
 
   test("Sheep eats"):
-    val sheepAfterEat = sheep.eat
+    val sheepAfterEat = sheep.eat()
     val expectedEnergy = 60.0
     sheepAfterEat.energy should be (60.0)
 

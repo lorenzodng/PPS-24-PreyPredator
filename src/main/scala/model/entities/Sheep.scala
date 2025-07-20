@@ -8,7 +8,6 @@ import zio.{UIO, ZIO}
  * Represents a sheep entity in the ecosystem.
  *
  * Inherits properties from [[Entity]].
- * Sheep moves towards the nearest grass and eats to gain energy.
  */
 case class Sheep(id: EntityId.Type, position: Position, energy: Double = 50, mass: Int = 1300, speed: Double = 1.5) extends Entity with MovableEntity[Sheep]:
 
@@ -35,7 +34,7 @@ case class Sheep(id: EntityId.Type, position: Position, energy: Double = 50, mas
    *
    * @return a new sheep instance with increased energy
    */
-  def eat: Sheep =
+  def eat(): Sheep =
     val gain = 10
     copy(energy = energy + gain)
 

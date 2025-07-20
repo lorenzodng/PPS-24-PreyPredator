@@ -6,10 +6,14 @@ import model.Position
  * Represents a grass entity in the ecosystem.
  *
  * Inherits properties from [[Entity]].
- * Grass is a static entity that does not move and serves as food for sheep.
  */
 case class Grass(id: EntityId.Type, position: Position, energy: Double = 0, mass: Int = 300, speed: Double = 0) extends Entity
 
+/**
+ * Companion object for the [[Grass]] class.
+ *
+ * Provides a utility method related to the creation and initialization of grass entities within the simulation world.
+ */
 object Grass:
 
   /**

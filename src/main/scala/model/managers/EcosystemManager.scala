@@ -128,7 +128,7 @@ class EcosystemManager(refWorld: Ref[World]):
    */
   private def updateWorldAfterWolfMovement(world: World, wolfEntity: Wolf): UIO[World] =
     val sheepEaten = world.sheep.filter(sheep => EatingManager.canEatSheep(wolfEntity, sheep))
-    val wolfEatsSheep = sheepEaten.foldLeft(wolfEntity)((w, sheep) => w.eat)
+    val wolfEatsSheep = sheepEaten.foldLeft(wolfEntity)((w, sheep) => w.eat())
     val afterEating = world.updateWolf(wolfEatsSheep).removeSheep(sheepEaten)
     val wolvesCanReproduce = afterEating.wolves.filter(wolf => LifeManager.canBornEntity(wolfEatsSheep, wolf))
     for
@@ -145,7 +145,7 @@ class EcosystemManager(refWorld: Ref[World]):
    */
   private def updateWorldAfterSheepMovement(world: World, sheepEntity: Sheep): UIO[World] =
     val grassEaten = world.grass.filter(grass => EatingManager.canEatGrass(sheepEntity, grass))
-    val sheepEatsGrass = grassEaten.foldLeft(sheepEntity)((s, grass) => s.eat)
+    val sheepEatsGrass = grassEaten.foldLeft(sheepEntity)((s, grass) => s.eat())
     val afterEating = world.updateSheep(sheepEatsGrass).removeGrass(grassEaten)
     val sheepCanReproduce = afterEating.sheep.filter(sheep => LifeManager.canBornEntity(sheepEatsGrass, sheep))
     for

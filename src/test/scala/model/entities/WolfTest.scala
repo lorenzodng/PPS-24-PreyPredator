@@ -34,7 +34,7 @@ class WolfTest extends AnyFunSuite with Matchers:
       yield ()
 
   test("Wolf eats"):
-    val wolfAfterEat = wolf.eat
+    val wolfAfterEat = wolf.eat()
     val expectedEnergy = 60.0
     wolfAfterEat.energy should be (expectedEnergy)
 
