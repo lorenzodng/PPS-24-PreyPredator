@@ -49,21 +49,6 @@ case class Wolf(id: EntityId.Type, position: Position, energy: Double = 50, mass
     world.sheep.sortBy(sheep => world.wolfById(wolf).map(w => w.position.distanceTo(sheep)).getOrElse(Double.MaxValue)).headOption
 
   /**
-   * Extension method on Position to calculate the normalized direction vector to another position.
-   *
-   * @param to the target position
-   * @return an option containing a tuple (dx, dy) representing the unit direction vector, or nothing if positions coincide
-   */
-  extension (from: Position)
-    private def directionTo(to: Position): Option[(Double, Double)] =
-      val dx = to.x - from.x
-      val dy = to.y - from.y
-      val distance = math.hypot(dx, dy)
-      if distance > 0 then
-        Some((dx / distance, dy / distance))
-      else None
-
-  /**
    * Returns a new wolf instance with updated position.
    *
    * @param newPos the new position of the wolf

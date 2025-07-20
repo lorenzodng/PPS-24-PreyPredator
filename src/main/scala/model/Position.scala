@@ -18,6 +18,18 @@ case class Position(x: Double, y: Double):
     val dy = y - other.position.y
     math.hypot(dx, dy)
 
+  /**
+   * Calculates the normalized direction vector from the current position to a target position.
+   *
+   * @param to the target position to calculate the direction towards
+   * @return an option containing a tuple representing the unit direction vector, or `None` if the target position coincides with the current position
+   */
+  def directionTo(to: Position): Option[(Double, Double)] =
+    val dx = to.x - x
+    val dy = to.y - y
+    val distance = math.hypot(dx, dy)
+    if distance > 0 then Some((dx / distance, dy / distance)) else None
+
 /**
  * Companion object for the [[Position]] case class.
  *
