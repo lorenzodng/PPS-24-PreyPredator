@@ -25,7 +25,7 @@ class WolfTest extends AnyFunSuite with Matchers:
     runUnsafe:
       for
         _ <- wolf.move(ecosystemManager)
-        _ <- ecosystemManager.simulateStep()
+        _ <- ecosystemManager.simulateTick()
         updatedWorld <- ecosystemManager.getWorld
         movedWolfOpt <- ZIO.succeed(updatedWorld.wolfById(wolf.id))
         _ <- movedWolfOpt match

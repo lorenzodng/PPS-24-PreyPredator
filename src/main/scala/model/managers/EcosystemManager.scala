@@ -46,7 +46,7 @@ class EcosystemManager(refWorld: Ref[World]):
    *
    * @return a ZIO effect representing whether all wolves and sheep are extinct
    */
-  def simulateStep(): UIO[Boolean] =
+  def simulateTick(): UIO[Boolean] =
     for
       world <- refWorld.get
       updatedWorld <- updateEntitiesPositions(world)

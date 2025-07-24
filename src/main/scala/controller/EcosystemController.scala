@@ -171,7 +171,7 @@ class EcosystemController(val ecosystemManager: EcosystemManager, var stopFlag: 
     for
       _ <- ZIO.foreachParDiscard(world.sheep)(_.move(ecosystemManager))
       _ <- ZIO.foreachParDiscard(world.wolves)(_.move(ecosystemManager))
-      extinct <- ecosystemManager.simulateStep()
+      extinct <- ecosystemManager.simulateTick()
       _ <- if extinct then
         stopSimulation() *> ZIO.succeed(extinctionCallback())
       else ZIO.succeed(updateViewCallback())
