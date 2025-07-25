@@ -154,10 +154,9 @@ class EcosystemController(val ecosystemManager: EcosystemManager, var stopFlag: 
   private def moveEntitiesRandomly(newWorld: World): UIO[World] =
     for
       _ <- ecosystemManager.setWorld(newWorld)
-      _ <- ZIO.foreachDiscard(newWorld.sheep.map(_.id) ++ newWorld.wolves.map(_.id)) { id =>
+      _ <- ZIO.foreachDiscard(newWorld.sheep.map(_.id) ++ newWorld.wolves.map(_.id)): id =>
         val (dx, dy) = ecosystemManager.randomDirection()
         ecosystemManager.moveEntityDirection(id, dx, dy)
-      }
     yield newWorld
 
   /**
@@ -200,7 +199,7 @@ class EcosystemController(val ecosystemManager: EcosystemManager, var stopFlag: 
     for
       _ <- fiber match
         case Some(f) => f.interrupt.unit
-        case None    => ZIO.unit
+        case None => ZIO.unit
       _ <- ZIO.succeed:
         fiber = None
     yield ()

@@ -89,7 +89,7 @@ class ControlsPanel:
   /**
    * Initial amount of grass generated at each interval.
    */
-  private val initialGrassGenerated = 150
+  private val initialGrassGenerated = 100
 
   /**
    * Minimum amount of grass generated at each interval.

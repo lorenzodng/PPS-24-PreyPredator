@@ -1,7 +1,6 @@
 package model.entities
 
 import model.Position
-
 import java.util.UUID
 
 /**
