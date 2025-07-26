@@ -39,9 +39,7 @@ class StatusPanel:
     wolfCountLabel.font = wolfCountLabel.font.deriveFont(fontSize)
     sheepCountLabel.font = sheepCountLabel.font.deriveFont(fontSize)
     grassCountLabel.font = grassCountLabel.font.deriveFont(fontSize)
-    new FlowPanel(FlowPanel.Alignment.Center)(
-      wolfCountLabel, Swing.HStrut(20), sheepCountLabel, Swing.HStrut(20), grassCountLabel
-    )
+    new FlowPanel(FlowPanel.Alignment.Center)(wolfCountLabel, Swing.HStrut(20), sheepCountLabel, Swing.HStrut(20), grassCountLabel)
   
   /**
    * Updates the displayed counts of wolves, sheep, and grass.

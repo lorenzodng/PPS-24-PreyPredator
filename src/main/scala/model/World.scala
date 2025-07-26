@@ -27,10 +27,10 @@ case class World(width: Int, height: Int, wolves: Seq[Wolf], sheep: Seq[Sheep], 
    * @return new world instance with generated wolves added
    */
   def generateWolves(nWolves: Int): World =
-    val newWolves = (1 to nWolves).map: _ =>
+    val newWolves = (1 to nWolves).map(_ =>
       val randomId = EntityId.random
       val randomPosition = Position(x = math.random() * width, y = math.random() * height)
-      Wolf(randomId, randomPosition)
+      Wolf(randomId, randomPosition))
     copy(wolves = wolves ++ newWolves)
 
   /**
@@ -40,10 +40,10 @@ case class World(width: Int, height: Int, wolves: Seq[Wolf], sheep: Seq[Sheep], 
    * @return new world instance with generated sheep added
    */
   def generateSheep(nSheep: Int): World =
-    val newSheep = (1 to nSheep).map: _ =>
+    val newSheep = (1 to nSheep).map(_ =>
       val randomId = EntityId.random
       val randomPosition = Position(x = math.random() * width, y = math.random() * height)
-      Sheep(randomId, randomPosition)
+      Sheep(randomId, randomPosition))
     copy(sheep = sheep ++ newSheep)
 
   /**
@@ -53,10 +53,10 @@ case class World(width: Int, height: Int, wolves: Seq[Wolf], sheep: Seq[Sheep], 
    * @return new world instance with generated grass added
    */
   def generateGrass(nGrass: Int): World =
-    val newGrass = (1 to nGrass).map: _ =>
+    val newGrass = (1 to nGrass).map(_ =>
       val randomId = EntityId.random
       val randomPosition = Position(x = math.random() * width, y = math.random() * height)
-      Grass(randomId, randomPosition)
+      Grass(randomId, randomPosition))
     copy(grass = grass ++ newGrass)
 
   /**
@@ -84,7 +84,7 @@ case class World(width: Int, height: Int, wolves: Seq[Wolf], sheep: Seq[Sheep], 
    * @return new world instance with the updated wolf
    */
   def updateWolf(wolfEntity: Wolf): World =
-    copy(wolves = wolves.map(w => if (w.id == wolfEntity.id) wolfEntity else w))
+    copy(wolves = wolves.map(w => if w.id == wolfEntity.id then wolfEntity else w))
 
   /**
    * Updates an existing sheep in the world with a new state.
@@ -93,7 +93,7 @@ case class World(width: Int, height: Int, wolves: Seq[Wolf], sheep: Seq[Sheep], 
    * @return new world instance with the updated sheep
    */
   def updateSheep(sheepEntity: Sheep): World =
-    copy(sheep = sheep.map(s => if (s.id == sheepEntity.id) sheepEntity else s))
+    copy(sheep = sheep.map(s => if s.id == sheepEntity.id then sheepEntity else s))
 
   /**
    * Removes specified sheep from the world.
@@ -102,7 +102,7 @@ case class World(width: Int, height: Int, wolves: Seq[Wolf], sheep: Seq[Sheep], 
    * @return new world instance with the sheep removed
    */
   def removeSheep(ids: Seq[Sheep]): World =
-    copy(sheep = sheep.filterNot(s => ids.map(_.id).contains(s.id)))
+    copy(sheep = sheep.filterNot(s => ids.contains(s)))
 
   /**
    * Removes specified grass patches from the world.

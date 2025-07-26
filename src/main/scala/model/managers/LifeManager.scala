@@ -22,9 +22,7 @@ object LifeManager:
    * @return true if the entities can produce a new entity, false otherwise
    */
   def canBornEntity[T <: Entity](entity1: T, entity2: T): Boolean =
-    Position.collides(entity1, entity2) &&
-      entity1.id != entity2.id &&
-      entity1.energy > 50 && entity2.energy > 50
+    Position.collides(entity1, entity2) && entity1.id != entity2.id && entity1.energy > 50 && entity2.energy > 50
 
   /**
    * Determines whether an entity should die due to lack of energy.

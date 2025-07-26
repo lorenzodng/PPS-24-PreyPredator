@@ -2,7 +2,6 @@ package view.panels
 
 import model.World
 import view.utils.SimulationViewRender
-
 import java.awt.event.{ComponentAdapter, ComponentEvent}
 import java.awt.{Color, Graphics2D}
 import scala.swing.*

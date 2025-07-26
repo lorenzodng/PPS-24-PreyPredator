@@ -4,7 +4,6 @@ import controller.EcosystemController
 import view.panels.{ControlsPanel, StatusPanel, WorldPanel}
 import zio.Runtime
 import zio.Unsafe.unsafe
-
 import scala.swing.MainFrame
 import scala.swing.event.ButtonClicked
 

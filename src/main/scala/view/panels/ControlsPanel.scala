@@ -222,11 +222,10 @@ class ControlsPanel:
    */
   private def makeSeparator(): Component =
     new Component:
-      override lazy val peer = new javax.swing.JSeparator() {
+      override lazy val peer = new javax.swing.JSeparator():
         override def paintComponent(g: java.awt.Graphics): Unit =
           g.setColor(Color.BLACK)
           g.fillRect(0, 0, getWidth, 2)
-      }
       preferredSize = new Dimension(1400, 1)
   
   

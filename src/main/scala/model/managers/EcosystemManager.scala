@@ -63,9 +63,9 @@ class EcosystemManager(refWorld: Ref[World]):
    * @return a ZIO effect containing the new world state with updated positions
    */
   private def updateEntitiesPositions(initialWorld: World): UIO[World] =
-    directions.toList.foldLeft(ZIO.succeed(initialWorld)): (accZIO, entry) =>
+    directions.toList.foldLeft(ZIO.succeed(initialWorld))((accZIO, entry) =>
       val (id, (dx, dy)) = entry
-      accZIO.flatMap(world => updateEntityPosition(world, id, dx, dy))
+      accZIO.flatMap(world => updateEntityPosition(world, id, dx, dy)))
 
   /**
    * Updates the position of a single entity (wolf or sheep).
@@ -94,7 +94,7 @@ class EcosystemManager(refWorld: Ref[World]):
    * @param wolfEntity the wolf entity to move
    * @param dx         horizontal movement delta
    * @param dy         vertical movement delta
-   * @return the updated wolf entity (pure value)
+   * @return the updated wolf entity
    */
   private def updateWolfPosition(world: World, wolfEntity: Wolf, dx: Double, dy: Double): Wolf =
     val newX = (wolfEntity.position.x + dx * wolfEntity.speed + world.width) % world.width
@@ -110,7 +110,7 @@ class EcosystemManager(refWorld: Ref[World]):
    * @param sheepEntity the wolf entity to move
    * @param dx          horizontal movement delta
    * @param dy          vertical movement delta
-   * @return the updated wolf entity (pure value)
+   * @return the updated wolf entity
    */
   private def updateSheepPosition(world: World, sheepEntity: Sheep, dx: Double, dy: Double): Sheep =
     val newX = (sheepEntity.position.x + dx * sheepEntity.speed + world.width) % world.width
@@ -162,14 +162,14 @@ class EcosystemManager(refWorld: Ref[World]):
    * @return a ZIO effect containing the updated world with any new wolves added
    */
   private def handleWolfReproduction(world: World, wolfEntity: Wolf, wolvesCanReproduce: Seq[Wolf]): UIO[World] =
-    ZIO.foldLeft(wolvesCanReproduce)(world): (acc, w) =>
+    ZIO.foldLeft(wolvesCanReproduce)(world)((acc, w) =>
       for
         newWolf <- ZIO.succeed(createNewWolf(wolfEntity, w))
         _ <- ZIO.succeed:
           directions = directions.updated(newWolf.id, randomDirection())
         parentsUpdated <- updateWolfParents(acc, wolfEntity, w)
         updatedWorld <- ZIO.succeed(parentsUpdated.copy(wolves = parentsUpdated.wolves :+ newWolf))
-      yield updatedWorld
+      yield updatedWorld)
 
   /**
    * Handles the reproduction of a sheep with potential partners.
@@ -180,14 +180,14 @@ class EcosystemManager(refWorld: Ref[World]):
    * @return a ZIO effect containing the updated world with any new sheep added
    */
   private def handleSheepReproduction(world: World, sheepEntity: Sheep, sheepCanReproduce: Seq[Sheep]): UIO[World] =
-    ZIO.foldLeft(sheepCanReproduce)(world): (acc, s) =>
+    ZIO.foldLeft(sheepCanReproduce)(world)((acc, s) =>
       for
         newSheep <- ZIO.succeed(createNewSheep(sheepEntity, s))
         _ <- ZIO.succeed:
           directions = directions.updated(newSheep.id, randomDirection())
         parentsUpdated <- updateSheepParents(acc, sheepEntity, s)
         updatedWorld <- ZIO.succeed(parentsUpdated.copy(sheep = parentsUpdated.sheep :+ newSheep))
-      yield updatedWorld
+      yield updatedWorld)
 
   /**
    * Applies energy cost for reproduction to two wolf parents.
@@ -311,7 +311,7 @@ class EcosystemManager(refWorld: Ref[World]):
     val dx = pos1.x - pos2.x
     val dy = pos1.y - pos2.y
     val distance = math.sqrt(dx * dx + dy * dy)
-    val separationVector = if (distance == 0) (1.0, 0.0) else (dx / distance, dy / distance)
+    val separationVector = if distance == 0 then (1.0, 0.0) else (dx / distance, dy / distance)
     val newPos1 = Position((pos1.x + separationVector._1 * separationDistance).max(0).min(maxWidth), (pos1.y + separationVector._2 * separationDistance).max(0).min(maxHeight))
     val newPos2 = Position((pos2.x - separationVector._1 * separationDistance).max(0).min(maxWidth), (pos2.y - separationVector._2 * separationDistance).max(0).min(maxHeight))
     (newPos1, newPos2)

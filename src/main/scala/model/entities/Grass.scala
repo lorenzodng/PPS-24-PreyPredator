@@ -25,5 +25,4 @@ object Grass:
    * @return a sequence of randomly positioned Grass entities
    */
   def generateRandomGrass(grassCount: Int, worldWidth: Double, worldHeight: Double): Seq[Grass] =
-    (1 to grassCount).map: _ =>
-      Grass(id = EntityId.random, position = Position(x = Math.random() * worldWidth, y = Math.random() * worldHeight))
+    (1 to grassCount).map(_ => Grass(id = EntityId.random, position = Position(x = Math.random() * worldWidth, y = Math.random() * worldHeight)))
