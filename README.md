@@ -19,6 +19,6 @@ The runnable JAR can be launched by running:
 $ java -jar /path/to/PreyPredator.jar
 ```
 
-#### Authors
+## Authors
 
-Lorenzo D'Angelo - lorenzo.dangelo7@studio.unibo.it  
+Lorenzo D'Angelo - lorenzo.dangelo7@studio.unibo.it
