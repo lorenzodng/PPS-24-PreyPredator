@@ -35,4 +35,4 @@
 
 - Con "entità" si intendono gli elementi dell’ecosistema: lupi, pecore ed erba.
 - Le stime sono espresse in termini relativi (ore indicative).
-- Questo backlog è stato adattato per un progetto individuale, con suddivisione in sprint personali e priorità decise in autonomia.
+- Il product backlog è stato adattato per un progetto individuale, con suddivisione in sprint personali e priorità decise in autonomia.
