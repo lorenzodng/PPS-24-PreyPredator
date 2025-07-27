@@ -3,6 +3,8 @@ Predator-prey ecosystem simulation
 
 ## Build with sbt
 Scala 3.3.6 and sbt 1.11.2 are required.
+
+
 Clone this repository, move to the root folder of the project, then run:
 ```
 $ sbt assembly
