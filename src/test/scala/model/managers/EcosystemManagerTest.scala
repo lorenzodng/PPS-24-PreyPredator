@@ -32,7 +32,7 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     val ecosystemManager = createManager(world)
     runUnsafe:
       for
-        _ <- ecosystemManager.moveEntityDirection(wolf.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(wolf.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         updatedWorld <- ecosystemManager.getWorld
         updatedWolf <- ZIO.succeed(updatedWorld.wolfById(wolf.id).get)
@@ -45,7 +45,7 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     val ecosystemManager = createManager(world)
     runUnsafe:
       for
-        _ <- ecosystemManager.moveEntityDirection(wolf.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(wolf.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         updatedWorld <- ecosystemManager.getWorld
         updatedWolf <- ZIO.succeed(updatedWorld.wolfById(wolf.id).get)
@@ -58,7 +58,7 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     val ecosystemManager = createManager(world)
     runUnsafe:
       for
-        _ <- ecosystemManager.moveEntityDirection(sheep.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(sheep.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         updatedWorld <- ecosystemManager.getWorld
         updatedSheep <- ZIO.succeed(updatedWorld.sheepById(sheep.id).get)
@@ -71,7 +71,7 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     val ecosystemManager = createManager(world)
     runUnsafe:
       for
-        _ <- ecosystemManager.moveEntityDirection(sheep.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(sheep.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         updatedWorld <- ecosystemManager.getWorld
         updatedSheep <- ZIO.succeed(updatedWorld.sheepById(sheep.id).get)
@@ -85,8 +85,8 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     val ecosystemManager = createManager(world)
     runUnsafe:
       for
-        _ <- ecosystemManager.moveEntityDirection(wolf.id, defaultDx, defaultDy)
-        _ <- ecosystemManager.moveEntityDirection(sheep.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(wolf.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(sheep.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         updatedWorld <- ecosystemManager.getWorld
         directions <- ZIO.succeed(ecosystemManager.getDirections)
@@ -101,8 +101,8 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     val ecosystemManager = createManager(world)
     runUnsafe:
       for
-        _ <- ecosystemManager.moveEntityDirection(wolf.id, defaultDx, defaultDy)
-        _ <- ecosystemManager.moveEntityDirection(sheep.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(wolf.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(sheep.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         updatedWorld <- ecosystemManager.getWorld
         directions <- ZIO.succeed(ecosystemManager.getDirections)
@@ -116,8 +116,8 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     val ecosystemManager = createManager(world)
     runUnsafe:
       for
-        _ <- ecosystemManager.moveEntityDirection(wolf1.id, defaultDx, defaultDy)
-        _ <- ecosystemManager.moveEntityDirection(wolf2.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(wolf1.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(wolf2.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         updatedWorld <- ecosystemManager.getWorld
         _ <- ZIO.succeed(updatedWorld.wolves.size shouldBe 3)
@@ -130,8 +130,8 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     val ecosystemManager = createManager(world)
     runUnsafe:
       for
-        _ <- ecosystemManager.moveEntityDirection(wolf1.id, defaultDx, defaultDy)
-        _ <- ecosystemManager.moveEntityDirection(wolf2.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(wolf1.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(wolf2.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         updatedWorld <- ecosystemManager.getWorld
         _ <- ZIO.succeed(updatedWorld.wolves.size shouldBe 2)
@@ -144,8 +144,8 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     val ecosystemManager = createManager(world)
     runUnsafe:
       for
-        _ <- ecosystemManager.moveEntityDirection(wolf1.id, defaultDx, defaultDy)
-        _ <- ecosystemManager.moveEntityDirection(wolf2.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(wolf1.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(wolf2.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         updatedWorld <- ecosystemManager.getWorld
         _ <- ZIO.succeed:
@@ -162,7 +162,7 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     val ecosystemManager = createManager(world)
     runUnsafe:
       for
-        _ <- ecosystemManager.moveEntityDirection(wolf.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(wolf.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         directions <- ZIO.succeed(ecosystemManager.getDirections)
         updatedWorld <- ecosystemManager.getWorld
@@ -176,7 +176,7 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     val ecosystemManager = createManager(world)
     runUnsafe:
       for
-        _ <- ecosystemManager.moveEntityDirection(sheep.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(sheep.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         updatedWorld <- ecosystemManager.getWorld
         directions <- ZIO.succeed(ecosystemManager.getDirections)
@@ -191,7 +191,7 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     val ecosystemManager = createManager(world)
     runUnsafe:
       for
-        _ <- ecosystemManager.moveEntityDirection(sheep.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(sheep.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         updatedWorld <- ecosystemManager.getWorld
         directions <- ZIO.succeed(ecosystemManager.getDirections)
@@ -205,8 +205,8 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     val ecosystemManager = createManager(world)
     runUnsafe:
       for
-        _ <- ecosystemManager.moveEntityDirection(sheep1.id, defaultDx, defaultDy)
-        _ <- ecosystemManager.moveEntityDirection(sheep2.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(sheep1.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(sheep2.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         updatedWorld <- ecosystemManager.getWorld
         _ <- ZIO.succeed(updatedWorld.sheep.size shouldBe 3)
@@ -219,8 +219,8 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     val ecosystemManager = createManager(world)
     runUnsafe:
       for
-        _ <- ecosystemManager.moveEntityDirection(sheep1.id, defaultDx, defaultDy)
-        _ <- ecosystemManager.moveEntityDirection(sheep2.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(sheep1.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(sheep2.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         updatedWorld <- ecosystemManager.getWorld
         _ <- ZIO.succeed(updatedWorld.sheep.size shouldBe 2)
@@ -233,8 +233,8 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     val ecosystemManager = createManager(world)
     runUnsafe:
       for
-        _ <- ecosystemManager.moveEntityDirection(sheep1.id, defaultDx, defaultDy)
-        _ <- ecosystemManager.moveEntityDirection(sheep2.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(sheep1.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(sheep2.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         updatedWorld <- ecosystemManager.getWorld
         _ <- ZIO.succeed:
@@ -251,7 +251,7 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     val ecosystemManager = createManager(world)
     runUnsafe:
       for
-        _ <- ecosystemManager.moveEntityDirection(sheep.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(sheep.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         directions <- ZIO.succeed(ecosystemManager.getDirections)
         updatedWorld <- ecosystemManager.getWorld
@@ -281,8 +281,8 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     runUnsafe:
       for
         _ <- ecosystemManager.setWorld(world)
-        _ <- ecosystemManager.moveEntityDirection(wolf1.id, defaultDx, defaultDy)
-        _ <- ecosystemManager.moveEntityDirection(wolf2.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(wolf1.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(wolf2.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         updatedWorld <- ecosystemManager.getWorld
         _ <- ZIO.succeed:
@@ -301,8 +301,8 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     runUnsafe:
       for
         _ <- ecosystemManager.setWorld(world)
-        _ <- ecosystemManager.moveEntityDirection(sheep1.id, defaultDx, defaultDy)
-        _ <- ecosystemManager.moveEntityDirection(sheep2.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(sheep1.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(sheep2.id, defaultDx, defaultDy)
         _ <- ecosystemManager.simulateTick()
         updatedWorld <- ecosystemManager.getWorld
         _ <- ZIO.succeed:
@@ -320,7 +320,7 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     runUnsafe:
       for
         _ <- ecosystemManager.setWorld(world)
-        _ <- ecosystemManager.moveEntityDirection(wolf.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(wolf.id, defaultDx, defaultDy)
         _ <- ZIO.succeed(ecosystemManager.getDirections.get(wolf.id) should be(Some((defaultDx, defaultDy))))
       yield ()
 
@@ -331,7 +331,7 @@ class EcosystemManagerTest extends AnyFunSuite with Matchers:
     runUnsafe:
       for
         _ <- ecosystemManager.setWorld(world)
-        _ <- ecosystemManager.moveEntityDirection(sheep.id, defaultDx, defaultDy)
+        _ <- ecosystemManager.updateEntityDirection(sheep.id, defaultDx, defaultDy)
         _ <- ZIO.succeed(ecosystemManager.getDirections.get(sheep.id) should be(Some((defaultDx, defaultDy))))
       yield ()
 

@@ -347,7 +347,7 @@ class EcosystemManager(refWorld: Ref[World]):
    * @param dy vertical direction component
    * @return a ZIO effect representing the direction update
    */
-  def moveEntityDirection(id: EntityId.Type, dx: Double, dy: Double): UIO[Unit] =
+  def updateEntityDirection(id: EntityId.Type, dx: Double, dy: Double): UIO[Unit] =
     ZIO.succeed:
       directions = directions.updated(id, (dx, dy))
 

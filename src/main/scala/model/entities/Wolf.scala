@@ -24,7 +24,7 @@ case class Wolf(id: EntityId.Type, position: Position, energy: Double = 50, mass
       sheepOpt = nearestSheep(id, world)
       _ <- (wolfOpt, sheepOpt) match
         case (Some(wolf), Some(food)) => wolf.position.directionTo(food.position) match
-          case Some((dx, dy)) => ecosystemManager.moveEntityDirection(id, dx, dy)
+          case Some((dx, dy)) => ecosystemManager.updateEntityDirection(id, dx, dy)
           case None => ZIO.unit
         case _ => ZIO.unit
     yield ()

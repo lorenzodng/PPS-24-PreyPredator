@@ -45,4 +45,4 @@ object Position:
    * @return true if the entities collide, false otherwise
    */
   def collides(e1: Entity, e2: Entity): Boolean =
-    e1.position.distanceTo(e2) < (e1.radius() + e2.radius())
+    e1.position.distanceTo(e2) <= (e1.radius() + e2.radius())

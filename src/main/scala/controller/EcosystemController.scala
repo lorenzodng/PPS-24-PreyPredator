@@ -156,7 +156,7 @@ class EcosystemController(val ecosystemManager: EcosystemManager, var stopFlag: 
       _ <- ecosystemManager.setWorld(newWorld)
       _ <- ZIO.foreachDiscard(newWorld.sheep.map(_.id) ++ newWorld.wolves.map(_.id)): id =>
         val (dx, dy) = ecosystemManager.randomDirection()
-        ecosystemManager.moveEntityDirection(id, dx, dy)
+        ecosystemManager.updateEntityDirection(id, dx, dy)
     yield newWorld
 
   /**
