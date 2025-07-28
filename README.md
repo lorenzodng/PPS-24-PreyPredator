@@ -1,5 +1,5 @@
 # Prey Predator
-Predator-prey ecosystem simulation
+Simulation of a predator-prey ecosystem
 
 ## Build with sbt
 Scala 3.3.6 and sbt 1.11.2 are required.  
