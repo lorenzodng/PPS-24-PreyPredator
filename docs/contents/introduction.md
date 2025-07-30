@@ -1,4 +1,3 @@
-
 # Introduzione
 Il progetto riguarda la realizzazione di una simulazione interattiva del modello Preda-Predatore di Lotka-Volterra, che descrive l’evoluzione nel tempo di due popolazioni interagenti in un ecosistema condiviso: prede e predatori. In questo modello, le prede fungono da fonte di cibo per i predatori, i quali influenzano a loro volta la crescita e la sopravvivenza delle prede attraverso eventi di predazione. Parallelamente, la sopravvivenza e la crescita dei predatori dipendono dalla disponibilità delle prede come risorsa alimentare, creando così un sistema dinamico interdipendente caratterizzato da oscillazioni nel numero di individui di entrambe le specie. 
 
