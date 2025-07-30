@@ -1,4 +1,4 @@
-## Indice
+## Contents
 
 - [Introduzione](contents/introduction)
 - [Processo di sviluppo](contents/development)
