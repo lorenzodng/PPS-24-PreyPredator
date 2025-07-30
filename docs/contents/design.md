@@ -9,7 +9,7 @@ In particolare, la scelta del pattern MVC assicura i seguenti vantaggi:
 Tale scelta architetturale consente di mantenere il controllo sulla concorrenza, evitando la complessità di sincronizzazione di più entità attive in parallelo, garantendo, al tempo stesso, reattività e fluidità.
 
 <p align="center">
-  <img src="imgs/mainArchitecture.png" alt="Architettura generale" width="55%">
+  <img src="../imgs/mainArchitecture.png" alt="Architettura generale" width="55%">
   <br>
   <em>Figura 1 – Architettura generale</em>
 </p>
