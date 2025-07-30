@@ -69,7 +69,7 @@ Nel progetto sono stati adottati diversi pattern di progettazione per strutturar
 - **Singleton**: realizzato tramite l'impiego di `objects` e `companion objects`, che forniscono metodi statici permettendo di mantenere un solo punto di accesso alle operazioni.
 
 <p align="center">
-  <img src="imgs/detailedArchitecture.png" alt="Architettura dettagliata" width="80%">
+  <img src="../imgs/detailedArchitecture.png" alt="Architettura dettagliata" width="80%">
   <br>
   <em>Figura 2 – Architettura dettagliata</em>
 </p>
