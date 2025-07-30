@@ -1,11 +1,9 @@
-# Documentazione Prey Predator
-
 ## Indice
 
-- [Introduzione](introduction.md)
-- [Processo di sviluppo](development.md)
-- [Analisi dei requisiti](requirements.md)
-- [Design architetturale](results.md)
-- [Implementazione](implementation.md)
-- [Testing](testing.md)
-- [Retrospettiva](retrospective.md)
+- [Introduzione](contents/introduction.md)
+- [Processo di sviluppo](contents/development.md)
+- [Analisi dei requisiti](contents/requirements.md)
+- [Design architetturale](contents/results.md)
+- [Implementazione](contents/implementation.md)
+- [Testing](contents/testing.md)
+- [Retrospettiva](contents/retrospective.md)
