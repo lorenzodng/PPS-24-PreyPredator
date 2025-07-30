@@ -1,6 +1,6 @@
 ## Indice
 
-- [Introduzione](contents/introduction)
+- [Introduzione](introduction)
 - [Processo di sviluppo](contents/development)
 - [Analisi dei requisiti](contents/requirements)
 - [Design architetturale](contents/results)
